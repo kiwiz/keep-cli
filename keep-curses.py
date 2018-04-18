@@ -17,6 +17,23 @@ def ellipsize(text, max_len):
 
     return text[:max_len - 1] + u'⋯'
 
+_color_map = {
+    gkeepapi.node.ColorValue.White: (1, (950, 950, 950)),
+    gkeepapi.node.ColorValue.Red: (2, (969, 524, 486)),
+    gkeepapi.node.ColorValue.Orange: (3, (969, 794, 486)),
+    gkeepapi.node.ColorValue.Yellow: (4, (969, 969, 535)),
+    gkeepapi.node.ColorValue.Green: (5, (775, 969, 547)),
+    gkeepapi.node.ColorValue.Teal: (6, (634, 969, 893)),
+    gkeepapi.node.ColorValue.Blue: (7, (486, 820, 969)),
+    gkeepapi.node.ColorValue.DarkBlue: (8, (494, 672, 969)),
+    gkeepapi.node.ColorValue.Purple: (9, (680, 516, 969)),
+    gkeepapi.node.ColorValue.Pink: (10, (942, 710, 790)),
+    gkeepapi.node.ColorValue.Brown: (11, (817, 775, 760)),
+    gkeepapi.node.ColorValue.Gray: (12, (786, 820, 836)),
+    # gkeepapi.node.ColorValue.Selected: (12, (422, 422, 422)),
+    # gkeepapi.node.ColorValue.Highlight: (12, (422, 422, 422)),
+}
+
 class UI(object):
     def __init__(self, parent_win):
         self.parent_win = parent_win
@@ -169,9 +186,9 @@ class NoteUI(ListUI):
         self.win = self.parent_win.derwin(0, 0, 0, 0)
 
     def _updateHighlight(self):
-        num = 1
+        num = _color_map[self.note.color]
         if self.active:
-            num = 2
+            num = 4
 
         if self.selected:
             num = 3
@@ -204,7 +221,7 @@ class NoteUI(ListUI):
             except curses.error:
                 pass
 
-        text_index = self.borders[0]
+        text_index = 0
         if not self.note.title:
             text_index += 1
         else:
@@ -249,20 +266,22 @@ class NoteUI(ListUI):
         self.win.noutrefresh()
 
 class NoteListUI(ListUI):
-    def __init__(self, parent_win, borders=(0, 0, 0, 0), elements=[], margin=1, columns=1):
-        super(NoteListUI, self).__init__(parent_win, NoteUI, borders=(0, 0, 0, 0), elements=elements, margin=1, columns=2)
+    def __init__(self, parent_win, elements=[]):
+        super(NoteListUI, self).__init__(parent_win, NoteUI, borders=(0, 0, 0, 0), elements=elements, margin=1, columns=3)
 
 class KeepUI(object):
     def __init__(self, win, keep, config):
         self.win = win
         self.keep = keep
         self.config = config
-        self.list_ui = ListUI(self.win, NoteUI, columns=1)
+        self.list_ui = NoteListUI(self.win)
         self.refresh()
 
         curses.curs_set(0)
-        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_YELLOW)
-        curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        for color_entry in _color_map:
+            index, color = color_entry
+            curses.init_color(index, color[0], color[1], color[2])
+            curses.init_pair(1, curses.COLOR_BLACK, index)
 
     def refresh(self):
         self.keep.sync()
