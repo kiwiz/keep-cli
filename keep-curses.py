@@ -87,7 +87,7 @@ class ListUI(UI):
         min_x = self.borders[2]
         max_x -= self.borders[3]
 
-        width = (max_x - min_x) / self.columns
+        width = int((max_x - min_x) / self.columns)
         self.column_widths = []
         for i in range(self.columns):
             self.column_widths.append((i * width, (i + 1) * width - 1))
