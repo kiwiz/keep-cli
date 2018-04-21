@@ -176,7 +176,7 @@ class ItemUI(UI):
 
 class NoteUI(ListUI):
     def __init__(self, parent_win, note):
-        super(NoteUI, self).__init__(parent_win, ItemUI, borders=(1, 0, 0, 0), elements=[], margin=0, columns=1)
+        super(NoteUI, self).__init__(parent_win, ItemUI, borders=(1, 1, 1, 1), elements=[], margin=0, columns=1)
         self.note = note
         self.active = False
         self.selected = False
@@ -186,7 +186,7 @@ class NoteUI(ListUI):
         self.win = self.parent_win.derwin(0, 0, 0, 0)
 
     def _updateHighlight(self):
-        num = _color_map[self.note.color]
+        num = _color_map[self.note.color][0]
         if self.active:
             num = 4
 
@@ -204,45 +204,48 @@ class NoteUI(ListUI):
         self._updateHighlight()
 
     def getHeight(self):
-        total = 1
+        total = 1 + self.borders[0] + self.borders[1]
         if type(self.note) == gkeepapi.node.Note:
-            total += 1 + self.note.text.count("\n")
+            total += self.note.text.count("\n")
         else:
             total += len(self.note.items)
         return total
 
+    def _renderTray(self, x, y):
+        try:
+            self.win.addstr(
+                y, x,
+                ('⊔' if self.note.archived else ' ') +
+                ('○' if self.note.pinned else ' ')
+            )
+        except curses.error:
+            pass
+
     def render(self):
-        max_x, max_y = self.getSize()
+        w, h = self.getSize()
+        min_y, max_y = self.borders[0], h - self.borders[1]
+        min_x, max_x = self.borders[2], w - self.borders[3]
 
         # Fill background
-        for i in range(max_y):
+        for i in range(h):
             try:
-                self.win.addstr(i, 0, ' ' * max_x)
+                self.win.addstr(i, 0, ' ' * w)
             except curses.error:
                 pass
 
-        text_index = 0
-        if not self.note.title:
+        text_index = min_y
+        if self.note.title:
             text_index += 1
-        else:
-            title_size = max_x
+            title_size = max_x - min_x
             if title_size > 3:
                 title_size -= 3
 
-                try:
-                    self.win.addstr(
-                        0, title_size + 1,
-                        ('⊔' if self.note.archived else ' ') +
-                        ('○' if self.note.pinned else ' '),
-                        curses.color_pair(2)
-                    )
-                except curses.error:
-                    pass
+                self._renderTray(min_x + title_size + 1, min_y)
 
             try:
                 self.win.addstr(
-                    0, 0,
-                    ellipsize(self.note.title, max_x - 3).encode('UTF-8'),
+                    min_y, min_x,
+                    ellipsize(self.note.title, title_size).encode('UTF-8'),
                     curses.A_UNDERLINE
                 )
             except curses.error:
@@ -250,15 +253,15 @@ class NoteUI(ListUI):
 
         if max_y > text_index:
             if type(self.note) == gkeepapi.node.Note:
-                entries = [ellipsize(line, max_x) for line in self.note.text.split("\n")]
+                entries = [ellipsize(line, max_x - min_x) for line in self.note.text.split("\n")]
             else:
                 entries = [
-                    (u'☒' if item.checked else u'☐') + ellipsize(item.text, max_x - 1) for item in self.note.items
+                    (u'☒' if item.checked else u'☐') + ellipsize(item.text, max_x - min_x - 1) for item in self.note.items
                 ]
             for i in range(min(max_y - text_index, len(entries))):
                 try:
                     self.win.addstr(
-                        i + text_index, 0,
+                        i + text_index, min_x,
                         entries[i].encode('UTF-8'),
                     )
                 except curses.error:
@@ -278,10 +281,10 @@ class KeepUI(object):
         self.refresh()
 
         curses.curs_set(0)
-        for color_entry in _color_map:
+        for _, color_entry in _color_map.items():
             index, color = color_entry
             curses.init_color(index, color[0], color[1], color[2])
-            curses.init_pair(1, curses.COLOR_BLACK, index)
+            curses.init_pair(index, curses.COLOR_BLACK, index)
 
     def refresh(self):
         self.keep.sync()
@@ -298,7 +301,6 @@ class KeepUI(object):
             self.win.refresh()
 
             c = self.win.getch()
-            self.list_ui.process(c)
             if c == curses.KEY_RESIZE:
                 h, w = self.win.getmaxyx()
                 self.list_ui.resize(w, h)
@@ -306,6 +308,8 @@ class KeepUI(object):
                 self.refresh()
             elif c == curses.KEY_MOUSE:
                 pass
+            else:
+                self.list_ui.process(c)
 
 def main(stdscr):
     fh = open('config.yml', 'r')
