@@ -6,8 +6,7 @@ import gkeepapi
 import curses
 import yaml
 import locale
-
-from uuid import getnode as get_mac
+import wcwidth
 
 from constants import ColorMap
 from util import abbreviate
@@ -71,7 +70,6 @@ class ListUI(UI):
         self.column_widths = []
         for i in range(self.columns):
             self.column_widths.append((i * width, (i + 1) * width - 1))
-        logging.error(self.column_widths)
 
     def resize(self, w, h):
         super(ListUI, self).resize(w, h)
@@ -166,7 +164,7 @@ class NoteUI(ListUI):
         self.win = self.parent_win.derwin(0, 0, 0, 0)
 
     def _updateHighlight(self):
-        num = _color_map[self.note.color][0]
+        num = ColorMap[self.note.color][0]
         if self.active:
             num = 4
 
@@ -184,9 +182,12 @@ class NoteUI(ListUI):
         self._updateHighlight()
 
     def getHeight(self):
-        total = 1 + self.borders[0] + self.borders[1]
+        total = self.borders[0] + self.borders[1]
+        if self.note.title:
+            total += 1
         if type(self.note) == gkeepapi.node.Note:
-            total += self.note.text.count("\n")
+            if self.note.text:
+                total += 1 + self.note.text.count("\n")
         else:
             total += len(self.note.items)
         return total
@@ -195,8 +196,8 @@ class NoteUI(ListUI):
         try:
             self.win.addstr(
                 y, x,
-                ('⊔' if self.note.archived else ' ') +
-                ('○' if self.note.pinned else ' ')
+                ('📥' if self.note.archived else '  ') +
+                ('📍' if self.note.pinned else '  ')
             )
         except curses.error:
             pass
@@ -213,19 +214,16 @@ class NoteUI(ListUI):
             except curses.error:
                 pass
 
+        self._renderTray(w - 4, 0)
+
+        text_width = max_x - min_x
         text_index = min_y
         if self.note.title:
             text_index += 1
-            title_size = max_x - min_x
-            if title_size > 3:
-                title_size -= 3
-
-                self._renderTray(min_x + title_size + 1, min_y)
-
             try:
                 self.win.addstr(
                     min_y, min_x,
-                    abbreviate(self.note.title, title_size).encode('UTF-8'),
+                    abbreviate(self.note.title, text_width).encode('UTF-8'),
                     curses.A_UNDERLINE
                 )
             except curses.error:
@@ -233,7 +231,7 @@ class NoteUI(ListUI):
 
         if max_y > text_index:
             if type(self.note) == gkeepapi.node.Note:
-                entries = [abbreviate(line, max_x - min_x) for line in self.note.text.split("\n")]
+                entries = [abbreviate(line, text_width) for line in self.note.text.split("\n")]
             else:
                 entries = [
                     (u'☒' if item.checked else u'☐') + abbreviate(item.text, max_x - min_x - 1) for item in self.note.items
@@ -261,7 +259,7 @@ class KeepUI(object):
         self.refresh()
 
         curses.curs_set(0)
-        for _, color_entry in _color_map.items():
+        for _, color_entry in ColorMap.items():
             index, color = color_entry
             curses.init_color(index, color[0], color[1], color[2])
             curses.init_pair(index, curses.COLOR_BLACK, index)
@@ -269,7 +267,7 @@ class KeepUI(object):
     def refresh(self):
         self.keep.sync()
 
-        todo = self.keep.findLabel('todo')
+        todo = self.keep.findLabel('read')
         notes = self.keep.find(archived=False, trashed=False, labels=[todo])
         notes = filter(lambda note: note.id not in self.config['ignore'], notes)
         self.list_ui.setElements(notes)
@@ -296,6 +294,7 @@ def main(stdscr):
     config = yaml.load(fh, Loader=yaml.Loader)
     fh.close()
 
+    # keyring.set_password('google-keep', config['username'], 'PWD')
     password = keyring.get_password('google-keep', config['username'])
 
     keep = gkeepapi.Keep()
@@ -304,4 +303,5 @@ def main(stdscr):
     ui = KeepUI(stdscr, keep, config)
     ui.process()
 
-curses.wrapper(main)
+if __name__ == '__main__':
+    curses.wrapper(main)
