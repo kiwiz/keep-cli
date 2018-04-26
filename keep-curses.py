@@ -9,30 +9,10 @@ import locale
 
 from uuid import getnode as get_mac
 
+from constants import ColorMap
+from util import abbreviate
+
 locale.setlocale(locale.LC_ALL, '')
-
-def ellipsize(text, max_len):
-    if len(text) <= max_len:
-        return text
-
-    return text[:max_len - 1] + u'⋯'
-
-_color_map = {
-    gkeepapi.node.ColorValue.White: (1, (950, 950, 950)),
-    gkeepapi.node.ColorValue.Red: (2, (969, 524, 486)),
-    gkeepapi.node.ColorValue.Orange: (3, (969, 794, 486)),
-    gkeepapi.node.ColorValue.Yellow: (4, (969, 969, 535)),
-    gkeepapi.node.ColorValue.Green: (5, (775, 969, 547)),
-    gkeepapi.node.ColorValue.Teal: (6, (634, 969, 893)),
-    gkeepapi.node.ColorValue.Blue: (7, (486, 820, 969)),
-    gkeepapi.node.ColorValue.DarkBlue: (8, (494, 672, 969)),
-    gkeepapi.node.ColorValue.Purple: (9, (680, 516, 969)),
-    gkeepapi.node.ColorValue.Pink: (10, (942, 710, 790)),
-    gkeepapi.node.ColorValue.Brown: (11, (817, 775, 760)),
-    gkeepapi.node.ColorValue.Gray: (12, (786, 820, 836)),
-    # gkeepapi.node.ColorValue.Selected: (12, (422, 422, 422)),
-    # gkeepapi.node.ColorValue.Highlight: (12, (422, 422, 422)),
-}
 
 class UI(object):
     def __init__(self, parent_win):
@@ -229,7 +209,7 @@ class NoteUI(ListUI):
         # Fill background
         for i in range(h):
             try:
-                self.win.addstr(i, 0, ' ' * w)
+                self.win.addstr(i, 0, ' ' * w)
             except curses.error:
                 pass
 
@@ -245,7 +225,7 @@ class NoteUI(ListUI):
             try:
                 self.win.addstr(
                     min_y, min_x,
-                    ellipsize(self.note.title, title_size).encode('UTF-8'),
+                    abbreviate(self.note.title, title_size).encode('UTF-8'),
                     curses.A_UNDERLINE
                 )
             except curses.error:
@@ -253,10 +233,10 @@ class NoteUI(ListUI):
 
         if max_y > text_index:
             if type(self.note) == gkeepapi.node.Note:
-                entries = [ellipsize(line, max_x - min_x) for line in self.note.text.split("\n")]
+                entries = [abbreviate(line, max_x - min_x) for line in self.note.text.split("\n")]
             else:
                 entries = [
-                    (u'☒' if item.checked else u'☐') + ellipsize(item.text, max_x - min_x - 1) for item in self.note.items
+                    (u'☒' if item.checked else u'☐') + abbreviate(item.text, max_x - min_x - 1) for item in self.note.items
                 ]
             for i in range(min(max_y - text_index, len(entries))):
                 try:
