@@ -2,20 +2,33 @@
 # -*- coding: utf-8 -*-
 
 import gkeepapi
+import enum
+
+class Attribute(enum.Enum):
+    Title = 'title'
+    Text = 'text'
+
+TextColor = ('', '#222')
 
 ColorMap = {
-    gkeepapi.node.ColorValue.White: (1, (950, 950, 950)),
-    gkeepapi.node.ColorValue.Red: (2, (969, 524, 486)),
-    gkeepapi.node.ColorValue.Orange: (3, (969, 794, 486)),
-    gkeepapi.node.ColorValue.Yellow: (4, (969, 969, 535)),
-    gkeepapi.node.ColorValue.Green: (5, (775, 969, 547)),
-    gkeepapi.node.ColorValue.Teal: (6, (634, 969, 893)),
-    gkeepapi.node.ColorValue.Blue: (7, (486, 820, 969)),
-    gkeepapi.node.ColorValue.DarkBlue: (8, (494, 672, 969)),
-    gkeepapi.node.ColorValue.Purple: (9, (680, 516, 969)),
-    gkeepapi.node.ColorValue.Pink: (10, (942, 710, 790)),
-    gkeepapi.node.ColorValue.Brown: (11, (817, 775, 760)),
-    gkeepapi.node.ColorValue.Gray: (12, (786, 820, 836)),
-    # gkeepapi.node.ColorValue.Selected: (12, (422, 422, 422)),
-    # gkeepapi.node.ColorValue.Highlight: (12, (422, 422, 422)),
+    gkeepapi.node.ColorValue.White: ('', 'h231'),
+    gkeepapi.node.ColorValue.Red: ('', 'h210'),
+    gkeepapi.node.ColorValue.Orange: ('', 'h222'),
+    gkeepapi.node.ColorValue.Yellow: ('', 'h228'),
+    gkeepapi.node.ColorValue.Green: ('', 'h192'),
+    gkeepapi.node.ColorValue.Teal: ('', 'h159'),
+    gkeepapi.node.ColorValue.Blue: ('', 'h117'),
+    gkeepapi.node.ColorValue.DarkBlue: ('', 'h111'),
+    gkeepapi.node.ColorValue.Purple: ('', 'h141'),
+    gkeepapi.node.ColorValue.Pink: ('', 'h218'),
+    gkeepapi.node.ColorValue.Brown: ('', '#dcc'),
+    gkeepapi.node.ColorValue.Gray: ('', 'h188'),
+    'SELECTED': ('', 'h59'),
 }
+
+Palette = [
+    (gkeepapi.node.ColorValue.Green, '', '', '', TextColor[1], 'h192'),
+    (Attribute.Title.value, '', '', '', '#ff6', '#123'),
+    (Attribute.Text.value, '', '', '', 'g37', 'g1'),
+    ('underline', 'bold,underline', '', ''),
+]
