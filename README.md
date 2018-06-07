@@ -1,5 +1,5 @@
-keep-curses
-===========
+keep-cli
+========
 
 Google Keep frontend for terminals.
 
@@ -8,7 +8,7 @@ Setup
 
 Populate creds into keyring with `keyring.set_password('google-keep', config['username'], 'PWD')`
 
-Run `python ./kc.py`
+Run `./keep`
 
 Keys
 ----
