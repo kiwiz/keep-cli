@@ -5,7 +5,7 @@ import constants
 class Note(urwid.AttrMap):
     def __init__(self, note):
         w_text = urwid.Text(note.text)
-        w_title = urwid.Text(('underline', note.title), wrap='clip')
+        w_title = urwid.Text(('b' + str(note.color), note.title), wrap='clip')
 
         super(Note, self).__init__(
             urwid.Frame(

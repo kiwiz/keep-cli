@@ -14,22 +14,19 @@ class Application(object):
     """
     Entrypoint class
     """
-    def __init__(self):
-        pass
+    def __init__(self, keep: gkeepapi.Keep):
+        self.keep = keep
 
     def run(self):
         """
         Run keep-cli
         """
+        notes = self.keep.find(archived=False)
+        note_widgets = [urwid.BoxAdapter(widget.note.Note(n), 10) for n in notes]
+
         loop = urwid.MainLoop(
             urwid.Filler(
-                widget.grid.Grid([
-                    urwid.BoxAdapter(widget.note.Note(_Note()), 10),
-                    urwid.BoxAdapter(widget.note.Note(_Note()), 10),
-                    urwid.BoxAdapter(widget.note.Note(_Note()), 10),
-                    urwid.BoxAdapter(widget.note.Note(_Note()), 10),
-                    urwid.BoxAdapter(widget.note.Note(_Note()), 10),
-                ], 15, 1, 1, 'left'),
+                widget.grid.Grid(note_widgets, 20, 1, 1, 'left'),
             valign='top'),
             constants.Palette
         )
