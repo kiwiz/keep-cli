@@ -1,30 +1,42 @@
 # -*- coding: utf-8 -*-
 import urwid
 import constants
+import gkeepapi
+
+from typing import List
 
 class Labels(urwid.Columns):
-    def __init__(self, labels):
+    def __init__(self, labels: List[gkeepapi.node.Label], attribute: str):
         super(Labels, self).__init__([
-            ('pack', urwid.Text(label.name)) for label in labels
+            ('pack', urwid.Text((attribute, label.name))) for label in labels
         ], dividechars=1)
 
 class Note(urwid.AttrMap):
-    def __init__(self, note):
+    def __init__(self, note: gkeepapi.node.TopLevelNode):
         w_text = urwid.Text(note.text)
-        w_title = urwid.Text(('b' + str(note.color), note.title), wrap='clip')
-        w_title = urwid.Text(('underline', note.title), wrap='clip')
-        w_labels = Labels(note.labels.all())
+        w_title = urwid.Text(('b' + note.color.value, note.title), wrap='clip')
+        w_labels = Labels(note.labels.all(), 'l' + note.color.value)
 
         super(Note, self).__init__(
-            urwid.Frame(
-                urwid.Filler(
-                    w_text,
-                    valign='top'
+            urwid.LineBox(
+                urwid.Frame(
+                    urwid.Filler(
+                        w_text,
+                        valign='top'
+                    ),
+                    header=w_title,
+                    footer=w_labels
                 ),
-                header=w_title,
-                footer=w_labels
+                tlcorner='',
+                tline=' ',
+                lline=' ',
+                trcorner='',
+                blcorner='',
+                rline=' ',
+                bline=' ',
+                brcorner=''
             ),
-            note.color
+            note.color.value
         )
 
 

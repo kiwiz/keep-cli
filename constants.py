@@ -23,15 +23,16 @@ ColorMap = {
     gkeepapi.node.ColorValue.Pink: ('dark magenta', 'h218'),
     gkeepapi.node.ColorValue.Brown: ('brown', '#dcc'),
     gkeepapi.node.ColorValue.Gray: ('light gray', 'h188'),
-    'SELECTED': ('', 'h59'),
 }
 
 Palette = [
     (Attribute.Title.value, '', '', '', '#ff6', '#123'),
     (Attribute.Text.value, '', '', '', 'g37', 'g1'),
-    ('underline', 'bold,underline', '', ''),
+    ('label', 'bold', '', '', 'g37', 'g1'),
 ]
 
 for k, v in ColorMap.items():
-    Palette.append((k, 'black', v[0], '', TextColor[1], v[1]))
-    Palette.append(('b' + str(k), 'black', v[0], '', TextColor[1], v[1]))
+    Palette.append((k.value, 'black', v[0], '', TextColor[1], v[1]))
+
+    Palette.append(('b' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'underline', 'bold']), v[1]))
+    Palette.append(('l' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'italics']), v[1]))
