@@ -14,8 +14,10 @@ class Labels(urwid.Columns):
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
         w_text = urwid.Text(note.text)
-        w_title = urwid.Text(('b' + note.color.value, note.title), wrap='clip')
         w_labels = Labels(note.labels.all(), 'l' + note.color.value)
+        w_title = None
+        if note.title:
+            w_title = urwid.Text(('b' + note.color.value, note.title), wrap='clip')
 
         super(Note, self).__init__(
             urwid.LineBox(
