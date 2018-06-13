@@ -1,18 +1,8 @@
 import urwid
 import constants
+import gkeepapi
 import widget.note
 import widget.grid
-
-import gkeepapi
-class Label(object):
-    def __init__(self, name):
-        self.name = name
-class _Note(object):
-    def __init__(self):
-        self.title = 'Title' * 30
-        self.text = ' '.join(['Text'] * 50)
-        self.color = gkeepapi.node.ColorValue.Green
-        self.labels = [Label('todo'), Label('nobo')]
 
 class Application(object):
     """

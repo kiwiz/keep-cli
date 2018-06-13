@@ -13,36 +13,27 @@ class Labels(urwid.Columns):
 
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
-        w_text = urwid.Text(note.text)
-        w_labels = Labels(note.labels.all(), 'l' + note.color.value)
-        w_title = None
+        children = []
+
         if note.title:
-            w_title = urwid.Text(('b' + note.color.value, note.title), wrap='clip')
+            children.append(('pack', urwid.Text(('b' + note.color.value, note.title), wrap='clip')))
+
+        children.append(('pack', urwid.Text(note.text)))
+
+        if len(note.labels):
+            children.append(('pack', urwid.Divider()))
+            children.append(('pack', Labels(note.labels.all(), 'l' + note.color.value)))
 
         super(Note, self).__init__(
-            urwid.LineBox(
-                urwid.Frame(
-                    urwid.Filler(
-                        w_text,
-                        valign='top'
-                    ),
-                    header=w_title,
-                    footer=w_labels
+            urwid.Frame(
+                urwid.Padding(
+                    urwid.Pile(children),
+                    align='center',
+                    left=1,
+                    right=1
                 ),
-                tlcorner='',
-                tline=' ',
-                lline=' ',
-                trcorner='',
-                blcorner='',
-                rline=' ',
-                bline=' ',
-                brcorner=''
+                header=urwid.Text('📍' if note.pinned else '', align='right'),
+                footer=urwid.Text('📥' if note.archived else '', align='right'),
             ),
             note.color.value
         )
-
-
-    """
-        ('📥' if self.note.archived else '  ') +
-        ('📍' if self.note.pinned else '  ')
-    """
