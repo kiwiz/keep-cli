@@ -20,8 +20,8 @@ class Application(object):
 
         loop = urwid.MainLoop(
             urwid.Filler(
-                widget.grid.Grid(note_widgets, 20, 1, 1, 'left'),
-            valign='top'),
+                widget.grid.Grid(note_widgets, 20, 1, 1, urwid.LEFT),
+            valign=urwid.TOP),
             constants.Palette
         )
 

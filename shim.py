@@ -1,6 +1,7 @@
 import urwid
 import logging
-logging.basicConfig(filename='debug.log',level=logging.DEBUG)
+
+logging.basicConfig(filename='debug.log')
 
 str_util = urwid.escape.str_util
 
