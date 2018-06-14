@@ -2,6 +2,7 @@
 import urwid
 import constants
 import gkeepapi
+import logging
 
 from typing import List
 
@@ -13,6 +14,8 @@ class Labels(urwid.Columns):
 
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
+        self.note = note
+
         children = []
 
         if note.title:
@@ -38,3 +41,11 @@ class Note(urwid.AttrMap):
             note.color.value,
             'GREEN'
         )
+
+    def keypress(self, size, key):
+        if key == 'f':
+            self.note.pinned = not self.note.pinned
+            self._invalidate()
+            key = None
+        super(Note, self).keypress(size, key)
+        return key
