@@ -15,6 +15,8 @@ class Labels(urwid.Columns):
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
         self.note = note
+        self.w_header = urwid.Text('', align=urwid.RIGHT)
+        self.w_footer = urwid.Text('', align=urwid.RIGHT)
 
         children = []
 
@@ -35,17 +37,36 @@ class Note(urwid.AttrMap):
                     left=1,
                     right=1
                 ),
-                header=urwid.Text('📍' if note.pinned else '', align=urwid.RIGHT),
-                footer=urwid.Text('📥' if note.archived else '', align=urwid.RIGHT),
+                header=self.w_header,
+                footer=self.w_footer,
             ),
             note.color.value,
             'GREEN'
         )
 
+        self._updatePinned()
+        self._updateArchived()
+
+    def _updateArchived(self):
+        self.w_footer.set_text('📥' if self.note.archived else '')
+
+    def _updatePinned(self):
+        self.w_header.set_text('📍' if self.note.pinned else '')
+
     def keypress(self, size, key):
         if key == 'f':
             self.note.pinned = not self.note.pinned
-            self._invalidate()
+            self._updatePinned()
             key = None
+        elif key == 'e':
+            self.note.archived = not self.note.archived
+            self._updateArchived()
+            key = None
+        elif key == 'z':
+            label = gkeepapi.node.Label()
+            label.name = 'a'
+            self.note.labels.add(label)
+            logging.error(self.note.labels.all())
+
         super(Note, self).keypress(size, key)
         return key
