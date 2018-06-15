@@ -16,6 +16,7 @@ password = keyring.get_password('google-keep', config['username'])
 
 keep = gkeepapi.Keep()
 keep.login(config['username'], password)
+password = None
 
 app = application.Application(keep)
 app.run()
