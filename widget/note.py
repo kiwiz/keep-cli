@@ -7,16 +7,20 @@ import logging
 from typing import List
 
 class Labels(urwid.Columns):
-    def __init__(self, labels: List[gkeepapi.node.Label], attribute: str):
-        super(Labels, self).__init__([
-            (urwid.PACK, urwid.Text((attribute, label.name))) for label in labels
-        ], dividechars=1)
+    def __init__(self):
+        super(Labels, self).__init__([], dividechars=1)
+
+    def setLabels(self, labels: List[gkeepapi.node.Label], color: gkeepapi.node.ColorValue):
+        self.contents = [
+            (urwid.Text(('l' + color.value, label.name)), self.options(urwid.PACK)) for label in labels
+        ]
 
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
         self.note = note
         self.w_header = urwid.Text('', align=urwid.RIGHT)
         self.w_footer = urwid.Text('', align=urwid.RIGHT)
+        self.w_labels = Labels()
 
         children = []
 
@@ -27,7 +31,7 @@ class Note(urwid.AttrMap):
 
         if len(note.labels):
             children.append((urwid.PACK, urwid.Divider()))
-            children.append((urwid.PACK, Labels(note.labels.all(), 'l' + note.color.value)))
+            children.append((urwid.PACK, self.w_labels, 'l' + note.color.value))
 
         super(Note, self).__init__(
             urwid.Frame(
@@ -46,6 +50,10 @@ class Note(urwid.AttrMap):
 
         self._updatePinned()
         self._updateArchived()
+        self._updateLabels()
+
+    def _updateLabels(self):
+        self.w_labels.setLabels(self.note.labels.all(), self.note.color)
 
     def _updateArchived(self):
         self.w_footer.set_text('📥' if self.note.archived else '')
@@ -66,7 +74,7 @@ class Note(urwid.AttrMap):
             label = gkeepapi.node.Label()
             label.name = 'a'
             self.note.labels.add(label)
-            logging.error(self.note.labels.all())
+            self._updateLabels()
 
         super(Note, self).keypress(size, key)
         return key
