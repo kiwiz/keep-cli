@@ -18,25 +18,25 @@ class Labels(urwid.Columns):
 class Note(urwid.AttrMap):
     def __init__(self, note: gkeepapi.node.TopLevelNode):
         self.note = note
-        self.w_header = urwid.Text('', align=urwid.RIGHT)
-        self.w_footer = urwid.Text('', align=urwid.RIGHT)
+
+        tmp = urwid.Text('')
+
+        self.w_title = urwid.Text(u'', wrap=urwid.CLIP)
+        self.w_text = urwid.Text(u'')
         self.w_labels = Labels()
 
-        children = []
-
-        if note.title:
-            children.append((urwid.PACK, urwid.Text(('b' + note.color.value, note.title), wrap=urwid.CLIP)))
-
-        children.append((urwid.PACK, urwid.Text(note.text)))
-
-        if len(note.labels):
-            children.append((urwid.PACK, urwid.Divider()))
-            children.append((urwid.PACK, self.w_labels, 'l' + note.color.value))
+        self.w_header = urwid.Text(u'', align=urwid.RIGHT)
+        self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
+        self.w_content = urwid.Frame(
+            urwid.Filler(self.w_text, valign=urwid.TOP),
+            header=tmp,
+            footer=tmp
+        )
 
         super(Note, self).__init__(
             urwid.Frame(
                 urwid.Padding(
-                    urwid.Pile(children),
+                    self.w_content,
                     align='center',
                     left=1,
                     right=1
@@ -48,12 +48,27 @@ class Note(urwid.AttrMap):
             'GREEN'
         )
 
+        self._updateContent()
+        self._updateLabels()
         self._updatePinned()
         self._updateArchived()
-        self._updateLabels()
+
+    def _updateContent(self):
+        w_title = (None, self.w_content.options())
+        if self.note.title:
+            w_title = (self.w_title, self.w_content.options())
+            self.w_title.set_text(('b' + self.note.color.value, self.note.title))
+
+        self.w_content.contents['header'] = w_title
+        self.w_text.set_text(self.note.text)
 
     def _updateLabels(self):
-        self.w_labels.setLabels(self.note.labels.all(), self.note.color)
+        w_labels = (None, self.w_content.options())
+        if len(self.note.labels):
+            w_labels = (self.w_labels, self.w_content.options())
+            self.w_labels.setLabels(self.note.labels.all(), self.note.color)
+
+        self.w_content.contents['footer'] = w_labels
 
     def _updateArchived(self):
         self.w_footer.set_text('📥' if self.note.archived else '')
@@ -70,11 +85,6 @@ class Note(urwid.AttrMap):
             self.note.archived = not self.note.archived
             self._updateArchived()
             key = None
-        elif key == 'z':
-            label = gkeepapi.node.Label()
-            label.name = 'a'
-            self.note.labels.add(label)
-            self._updateLabels()
 
         super(Note, self).keypress(size, key)
         return key

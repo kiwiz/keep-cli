@@ -1,29 +1,35 @@
 import urwid
+import logging
 import constants
 import gkeepapi
-import widget.note
 import widget.grid
+import widget.kanban
+# import widget.settings
+# import widget.search
+import query
 
-class Application(object):
+class Application(urwid.WidgetWrap):
     """
-    Entrypoint class
+    Base application widget
     """
     def __init__(self, keep: gkeepapi.Keep):
         self.keep = keep
+        # self.w_main = widget.grid.Grid(query.Query())
+        self.w_main = widget.kanban.KanBan(query.Query(), query.Query(), query.Query())
+        self.refresh()
 
-    def run(self):
-        """
-        Run keep-cli
-        """
-        notes = self.keep.find(archived=False)
-        note_widgets = [urwid.BoxAdapter(widget.note.Note(n), 10) for n in notes]
-
-        loop = urwid.MainLoop(
-            urwid.Filler(
-                widget.grid.Grid(note_widgets, 20, 1, 1, urwid.LEFT),
-            valign=urwid.TOP),
-            constants.Palette
+        super(Application, self).__init__(
+            urwid.Filler(self.w_main, valign=urwid.TOP)
         )
 
-        loop.screen.set_terminal_properties(colors=256)
-        loop.run()
+    def refresh(self):
+        self.keep.sync()
+        self.w_main.refresh(self.keep)
+
+    def keypress(self, size, key):
+        if key == 'r':
+            self.refresh()
+            key = None
+
+        super(Application, self).keypress(size, key)
+        return key

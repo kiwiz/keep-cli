@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, application, yaml, keyring, gkeepapi, shim
+import argparse, application, yaml, keyring, gkeepapi, urwid, constants, shim
 
 parser = argparse.ArgumentParser('Keep-CLI')
 parser.add_argument('--config', type=str, default='config.yml', help='Configuration file')
@@ -19,4 +19,6 @@ keep.login(config['username'], password)
 password = None
 
 app = application.Application(keep)
-app.run()
+loop = urwid.MainLoop(application.Application(keep), constants.Palette)
+loop.screen.set_terminal_properties(colors=256)
+loop.run()

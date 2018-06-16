@@ -15,6 +15,14 @@ Keys
 
 - <kbd>k</kbd> Up
 - <kbd>j</kbd> Down
+- <kbd>h</kbd> Left
+- <kbd>l</kbd> Right
 - <kbd>f</kbd> Pin/Unpin
 - <kbd>e</kbd> Archive/Unarchive
 - <kbd>r</kbd> Sync
+
+Todo
+----
+
+- Add support for key sequences
+
