@@ -4,14 +4,14 @@ import gkeepapi
 import query
 import widget.note
 
-class List(urwid.Pile):
+class List(urwid.ListBox):
     def __init__(self, q: query.Query):
         self.query = q
-        super(List, self).__init__([])
+        super(List, self).__init__(urwid.SimpleFocusListWalker([]))
 
     def refresh(self, keep: gkeepapi.Keep):
-        self.contents = [
-            (urwid.BoxAdapter(widget.note.Note(n), 10), self.options()) for n in self.query.filter(keep)
+        self.body[:] = [
+            urwid.BoxAdapter(widget.note.Note(n), 10) for n in self.query.filter(keep)
         ]
 
 class KanBan(urwid.Columns):

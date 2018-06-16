@@ -14,13 +14,11 @@ class Application(urwid.WidgetWrap):
     """
     def __init__(self, keep: gkeepapi.Keep):
         self.keep = keep
-        # self.w_main = widget.grid.Grid(query.Query())
-        self.w_main = widget.kanban.KanBan(query.Query(), query.Query(), query.Query())
+        # self.w_main = widget.kanban.KanBan(query.Query(), query.Query(), query.Query())
+        self.w_main = widget.grid.Grid(query.Query())
         self.refresh()
 
-        super(Application, self).__init__(
-            urwid.Filler(self.w_main, valign=urwid.TOP)
-        )
+        super(Application, self).__init__(self.w_main)
 
     def refresh(self):
         self.keep.sync()
