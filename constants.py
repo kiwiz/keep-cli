@@ -21,7 +21,7 @@ ColorMap = {
     gkeepapi.node.ColorValue.DarkBlue: ('dark blue', 'h111'),
     gkeepapi.node.ColorValue.Purple: ('dark magenta', 'h141'),
     gkeepapi.node.ColorValue.Pink: ('dark magenta', 'h218'),
-    gkeepapi.node.ColorValue.Brown: ('brown', '#dcc'),
+    gkeepapi.node.ColorValue.Brown: ('brown', 'h181'),
     gkeepapi.node.ColorValue.Gray: ('light gray', 'h188'),
 }
 
