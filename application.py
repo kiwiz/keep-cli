@@ -14,20 +14,36 @@ class Application(urwid.WidgetWrap):
     """
     def __init__(self, keep: gkeepapi.Keep):
         self.keep = keep
-        # self.w_main = widget.kanban.KanBan(query.Query(), query.Query(), query.Query())
-        self.w_main = widget.grid.Grid(query.Query())
+        self.stack = []
+
+        w_main = widget.grid.Grid(self, query.Query())
+        self.stack.append(w_main)
+
+        super(Application, self).__init__(w_main)
         self.refresh()
 
-        super(Application, self).__init__(self.w_main)
+    def push(self, w: urwid.Widget):
+        self.stack.append(w)
+        self._w = w
+
+    def pop(self):
+        if len(self.stack) <= 1:
+            return
+
+        self.stack.pop()
+        self._w = self.stack[-1]
+
+    def replace(self, w: urwid.Widget):
+        self.pop()
+        self.push(w)
 
     def refresh(self):
         self.keep.sync()
-        self.w_main.refresh(self.keep)
+        self._w.refresh(self.keep)
 
     def keypress(self, size, key):
+        key = super(Application, self).keypress(size, key)
         if key == 'r':
             self.refresh()
             key = None
-
-        super(Application, self).keypress(size, key)
         return key

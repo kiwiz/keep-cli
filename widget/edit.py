@@ -5,14 +5,15 @@ import gkeepapi
 import widget.labels
 import logging
 
-class Note(urwid.AttrMap):
-    def __init__(self, note: gkeepapi.node.TopLevelNode):
+class Edit(urwid.AttrMap):
+    def __init__(self, app: 'application.Application', note: gkeepapi.node.TopLevelNode):
+        self.application = app
         self.note = note
 
         tmp = urwid.Text('')
 
-        self.w_title = urwid.Text(u'', wrap=urwid.CLIP)
-        self.w_text = urwid.Text(u'')
+        self.w_title = urwid.Edit(wrap=urwid.CLIP)
+        self.w_text = urwid.Edit(multiline=True)
         self.w_labels = widget.labels.Labels()
 
         self.w_header = urwid.Text(u'', align=urwid.RIGHT)
@@ -23,7 +24,7 @@ class Note(urwid.AttrMap):
             footer=tmp
         )
 
-        super(Note, self).__init__(
+        super(Edit, self).__init__(
             urwid.Frame(
                 urwid.Padding(
                     self.w_content,
@@ -34,8 +35,7 @@ class Note(urwid.AttrMap):
                 header=self.w_header,
                 footer=self.w_footer,
             ),
-            note.color.value,
-            'GREEN'
+            note.color.value
         )
 
         self._updateContent()
@@ -46,11 +46,14 @@ class Note(urwid.AttrMap):
     def _updateContent(self):
         w_title = (None, self.w_content.options())
         if self.note.title:
-            w_title = (self.w_title, self.w_content.options())
-            self.w_title.set_text(('b' + self.note.color.value, self.note.title))
+            w_title = (
+                urwid.AttrMap(self.w_title, 'b' + self.note.color.value),
+                self.w_content.options()
+            )
+            self.w_title.set_edit_text(self.note.title)
 
         self.w_content.contents['header'] = w_title
-        self.w_text.set_text(self.note.text)
+        self.w_text.set_edit_text(self.note.text)
 
     def _updateLabels(self):
         w_labels = (None, self.w_content.options())
@@ -67,6 +70,7 @@ class Note(urwid.AttrMap):
         self.w_header.set_text('📍' if self.note.pinned else '')
 
     def keypress(self, size, key):
+        key = super(Edit, self).keypress(size, key)
         if key == 'f':
             self.note.pinned = not self.note.pinned
             self._updatePinned()
@@ -75,6 +79,6 @@ class Note(urwid.AttrMap):
             self.note.archived = not self.note.archived
             self._updateArchived()
             key = None
-
-        super(Note, self).keypress(size, key)
+        elif key == 'esc':
+            self.application.pop()
         return key

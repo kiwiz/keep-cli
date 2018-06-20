@@ -2,10 +2,13 @@ import urwid
 import logging
 import gkeepapi
 import widget.note
+import widget.edit
+import application
 import query
 
 class Grid(urwid.Filler):
-    def __init__(self, q: query.Query):
+    def __init__(self, app: 'application.Application', q: query.Query):
+        self.application = app
         self.query = q
         self.w_grid = urwid.GridFlow([], 20, 1, 1, urwid.LEFT)
 
@@ -25,5 +28,11 @@ class Grid(urwid.Filler):
             key = 'left'
         elif key == 'l':
             key = 'right'
+        elif key == 'enter':
+            if self.w_grid.focus is not None:
+                w_edit = widget.edit.Edit(self.application, self.w_grid.focus.note)
+                self.application.push(w_edit)
+        elif key == 'esc':
+            self.application.pop()
         super(Grid, self).keypress(size, key)
         return key
