@@ -69,6 +69,10 @@ class Edit(urwid.AttrMap):
     def _updatePinned(self):
         self.w_header.set_text('📍' if self.note.pinned else '')
 
+    def _save(self):
+        self.note.title = self.w_title.get_edit_text()
+        self.note.text = self.w_text.get_edit_text()
+
     def keypress(self, size, key):
         key = super(Edit, self).keypress(size, key)
         if key == 'f':
@@ -80,5 +84,6 @@ class Edit(urwid.AttrMap):
             self._updateArchived()
             key = None
         elif key == 'esc':
+            self._save()
             self.application.pop()
         return key

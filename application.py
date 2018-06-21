@@ -32,6 +32,7 @@ class Application(urwid.WidgetWrap):
 
         self.stack.pop()
         self._w = self.stack[-1]
+        self._w.refresh(self.keep)
 
     def replace(self, w: urwid.Widget):
         self.pop()
