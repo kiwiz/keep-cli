@@ -15,7 +15,8 @@ class Note(urwid.AttrMap):
         self.w_text = urwid.Text(u'')
         self.w_labels = widget.labels.Labels()
 
-        self.w_header = urwid.Text(u'', align=urwid.RIGHT)
+        self.w_state = urwid.Text(u'', align=urwid.RIGHT)
+        self.w_header = urwid.AttrMap(self.w_state, None)
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
         self.w_content = urwid.Frame(
             urwid.Filler(self.w_text, valign=urwid.TOP),
@@ -34,14 +35,12 @@ class Note(urwid.AttrMap):
                 header=self.w_header,
                 footer=self.w_footer,
             ),
-            note.color.value,
-            'GREEN'
+            note.color.value
         )
 
         self._updateContent()
         self._updateLabels()
-        self._updatePinned()
-        self._updateArchived()
+        self._updateState()
 
     def _updateContent(self):
         w_title = (None, self.w_content.options())
@@ -60,20 +59,28 @@ class Note(urwid.AttrMap):
 
         self.w_content.contents['footer'] = w_labels
 
-    def _updateArchived(self):
-        self.w_footer.set_text('📥' if self.note.archived else '')
+    def _updateFocus(self, focus):
+        self.w_header.set_attr_map({None: constants.Attribute.Selected.value if focus else None})
 
-    def _updatePinned(self):
-        self.w_header.set_text('📍' if self.note.pinned else '')
+    def _updateState(self):
+        parts = [
+            '📥' if self.note.archived else '  ',
+            '📍' if self.note.pinned else '  ',
+        ]
+        self.w_state.set_text(''.join(parts))
+
+    def render(self, size, focus=False):
+        self._updateFocus(focus)
+        return super(Note, self).render(size, focus)
 
     def keypress(self, size, key):
         if key == 'f':
             self.note.pinned = not self.note.pinned
-            self._updatePinned()
+            self._updateState()
             key = None
         elif key == 'e':
             self.note.archived = not self.note.archived
-            self._updateArchived()
+            self._updateState()
             key = None
 
         super(Note, self).keypress(size, key)

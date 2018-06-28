@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urwid
+import urwid_readline
 import constants
 import gkeepapi
 import widget.labels
@@ -12,8 +13,8 @@ class Edit(urwid.AttrMap):
 
         tmp = urwid.Text('')
 
-        self.w_title = urwid.Edit(wrap=urwid.CLIP)
-        self.w_text = urwid.Edit(multiline=True)
+        self.w_title = urwid_readline.ReadlineEdit(wrap=urwid.CLIP)
+        self.w_text = urwid_readline.ReadlineEdit(multiline=True)
         self.w_labels = widget.labels.Labels()
 
         self.w_header = urwid.Text(u'', align=urwid.RIGHT)

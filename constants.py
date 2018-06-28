@@ -7,6 +7,7 @@ import enum
 class Attribute(enum.Enum):
     Title = 'title'
     Text = 'text'
+    Selected = 'selected'
 
 TextColor = ('', '#222')
 
@@ -26,9 +27,7 @@ ColorMap = {
 }
 
 Palette = [
-    (Attribute.Title.value, '', '', '', '#ff6', '#123'),
-    (Attribute.Text.value, '', '', '', 'g37', 'g1'),
-    ('label', 'bold', '', '', 'g37', 'g1'),
+    (Attribute.Selected.value, '', '', '', TextColor[1], 'h242'),
 ]
 
 for k, v in ColorMap.items():
