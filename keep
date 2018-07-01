@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-import argparse, application, yaml, keyring, gkeepapi, urwid, constants, shim
+import argparse, application, yaml, keyring, gkeepapi, urwid, constants
 
 parser = argparse.ArgumentParser('Keep-CLI')
 parser.add_argument('--config', type=str, default='config.yml', help='Configuration file')
 
 args = parser.parse_args()
-
-shim.patch()
 
 fh = open(args.config, 'r')
 config = yaml.load(fh, Loader=yaml.Loader)
