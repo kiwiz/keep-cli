@@ -2,6 +2,17 @@ import gkeepapi
 from typing import List
 
 class Query(object):
+    @classmethod
+    def fromConfig(cls, config: dict) -> 'Query':
+        query = config.get('query')
+        labels = config.get('labels')
+        colors = config.get('colors')
+        pinned = config.get('pinned')
+        archived = config.get('archived', False)
+        trashed = config.get('trashed', False)
+
+        return cls(query, labels, colors, pinned, archived, trashed)
+
     def __init__(self, query=None, labels=None, colors=None, pinned=None, archived=False, trashed=False):
         self.query = query
         self.labels = labels

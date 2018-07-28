@@ -17,6 +17,6 @@ keep.login(config['username'], password)
 password = None
 
 app = application.Application(keep)
-loop = urwid.MainLoop(application.Application(keep), constants.Palette)
+loop = urwid.MainLoop(application.Application(config, keep), constants.Palette)
 loop.screen.set_terminal_properties(colors=256)
 loop.run()

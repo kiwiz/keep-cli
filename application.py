@@ -1,3 +1,4 @@
+import copy
 import urwid
 import logging
 import constants
@@ -12,11 +13,12 @@ class Application(urwid.WidgetWrap):
     """
     Base application widget
     """
-    def __init__(self, keep: gkeepapi.Keep):
+    def __init__(self, config: dict, keep: gkeepapi.Keep):
+        self.config = config
         self.keep = keep
         self.stack = []
 
-        w_main = widget.grid.Grid(self, query.Query())
+        w_main = widget.grid.Grid(self, self.hydrateQuery('default'))
         self.stack.append(w_main)
 
         super(Application, self).__init__(w_main)
@@ -48,3 +50,29 @@ class Application(urwid.WidgetWrap):
             self.refresh()
             key = None
         return key
+
+    def hydrateQuery(self, key: str) -> query.Query:
+        views = self.config.get('views', {})
+        view = copy.deepcopy(views.get(key, {}))
+
+        if 'labels' in view:
+            labels = []
+            for i in view.get('labels', []):
+                l = self.keep.findLabel(i)
+                if l is not None:
+                    labels.append(l)
+                else:
+                    logging.warn('Label not found %s', i)
+            view['labels'] = labels
+
+        if 'colors' in view:
+            colors = []
+            for i in view.get('colors', []):
+                try:
+                    c = gkeepapi.node.ColorValue(i.upper())
+                    colors.append(c)
+                except:
+                    logging.warn('Color not found %s', i)
+            view['colors'] = colors
+
+        return query.Query.fromConfig(view)
