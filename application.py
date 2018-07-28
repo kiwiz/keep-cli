@@ -25,10 +25,16 @@ class Application(urwid.WidgetWrap):
         self.refresh()
 
     def push(self, w: urwid.Widget):
+        """
+        Push a widget onto the rendering stack
+        """
         self.stack.append(w)
         self._w = w
 
     def pop(self):
+        """
+        Pop a widget off the rendering stack
+        """
         if len(self.stack) <= 1:
             return
 
@@ -37,14 +43,23 @@ class Application(urwid.WidgetWrap):
         self._w.refresh(self.keep)
 
     def replace(self, w: urwid.Widget):
+        """
+        Replace the active widget on the rendering stack
+        """
         self.pop()
         self.push(w)
 
     def refresh(self):
+        """
+        Refresh keep and the active widget
+        """
         self.keep.sync()
         self._w.refresh(self.keep)
 
     def keypress(self, size, key):
+        """
+        Handle global keypresses
+        """
         key = super(Application, self).keypress(size, key)
         if key == 'r':
             self.refresh()
