@@ -5,8 +5,9 @@ import constants
 import gkeepapi
 import widget.grid
 import widget.kanban
+import widget.search
+import widget.help
 # import widget.settings
-# import widget.search
 import query
 
 class Application(urwid.WidgetWrap):
@@ -64,29 +65,39 @@ class Application(urwid.WidgetWrap):
         if key == 'r':
             self.refresh()
             key = None
+        elif key == '/':
+            self.replace(widget.search.Search(self, self.keep))
+            key = None
+        elif key == '?':
+            self.push(widget.help.Help())
+            key = None
         return key
 
     def hydrateQuery(self, key: str) -> query.Query:
         views = self.config.get('views', {})
-        view = copy.deepcopy(views.get(key, {}))
+        view = copy.deepcopy(views.get(key) or {})
 
         if 'labels' in view:
             labels = []
-            for i in view.get('labels', []):
-                l = self.keep.findLabel(i)
-                if l is not None:
-                    labels.append(l)
-                else:
-                    logging.warn('Label not found %s', i)
+            raw = view.get('labels', [])
+
+            if raw:
+                for i in raw:
+                    l = self.keep.findLabel(i)
+                    if l is not None:
+                        labels.append(l)
+                    else:
+                        logging.warn('Label not found %s', i)
             view['labels'] = labels
 
         if 'colors' in view:
             colors = []
+
             for i in view.get('colors', []):
                 try:
                     c = gkeepapi.node.ColorValue(i.upper())
                     colors.append(c)
-                except:
+                except ValueError:
                     logging.warn('Color not found %s', i)
             view['colors'] = colors
 

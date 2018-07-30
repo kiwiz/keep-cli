@@ -82,6 +82,9 @@ class Note(urwid.AttrMap):
             self.note.archived = not self.note.archived
             self._updateState()
             key = None
+        elif key == '#':
+            self.note.trashed = True
+            key = None
 
         super(Note, self).keypress(size, key)
         return key

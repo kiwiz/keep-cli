@@ -11,6 +11,13 @@ from typing import List
 NEXT_SELECTABLE = 'next selectable'
 PREV_SELECTABLE = 'prev selectable'
 
+class Colors(urwid.GridFlow):
+    def __init__(self):
+        super(Colors, self).__init__([
+            urwid.Text(('c' + color.value, ' '))
+            for color in gkeepapi.node.ColorValue
+        ], 1, 0, 0, 'left')
+
 class Item(urwid.Columns):
     def __init__(self, item: gkeepapi.node.ListItem):
         self.id = item.id

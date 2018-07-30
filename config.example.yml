@@ -1,3 +1,11 @@
 username: 'user@gmail.com'
-ignore:
-- 'NOTE_ID'
+views:
+  default:
+  yellow:
+    name: Yellow
+    colors:
+    - yellow
+    pinned: true
+    labels:
+    - todo
+    archived: false
