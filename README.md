@@ -24,5 +24,7 @@ Keys
 Todo
 ----
 
+- Add support for color-selection
+- Add support for label-selection
+- Add support for search
 - Add support for key sequences
-

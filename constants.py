@@ -35,6 +35,8 @@ for k, v in ColorMap.items():
 
     # Bold variant
     Palette.append(('b' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'underline', 'bold']), v[1]))
+    # Italicized variant
+    Palette.append(('i' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'italics']), v[1]))
     # Label variant
     Palette.append(('l' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'standout']), v[1]))
     # Color variant

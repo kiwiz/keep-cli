@@ -1,11 +1,18 @@
 username: 'user@gmail.com'
+size:
+  width: 26
+  height: 10
 views:
   default:
+    type: grid
+    query:
   yellow:
-    name: Yellow
-    colors:
-    - yellow
-    pinned: true
-    labels:
-    - todo
-    archived: false
+    query:
+      type: grid
+      name: Yellow
+      colors:
+      - yellow
+      pinned: true
+      labels:
+      - todo
+      archived: false

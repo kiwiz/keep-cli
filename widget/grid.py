@@ -10,14 +10,20 @@ class Grid(urwid.Filler):
     def __init__(self, app: 'application.Application', q: query.Query):
         self.application = app
         self.query = q
-        self.w_grid = urwid.GridFlow([], 20, 1, 1, urwid.LEFT)
+
+        size = app.config.get('size', {})
+        self.size = (size.get('width', 26), size.get('height', 10))
+
+        self.w_grid = urwid.GridFlow([], self.size[0], 1, 1, urwid.LEFT)
 
         super(Grid, self).__init__(self.w_grid, valign=urwid.TOP)
 
     def refresh(self, keep: gkeepapi.Keep):
         self.w_grid.contents = [
-            (urwid.BoxAdapter(widget.note.Note(n), 10), self.w_grid.options()) for n in self.query.filter(keep)
+            (urwid.BoxAdapter(widget.note.Note(n), self.size[1]), self.w_grid.options()) for n in self.query.filter(keep)
         ]
+        if self.w_grid.contents:
+            self.w_grid.focus_position = 0
 
     def keypress(self, size, key):
         if key == 'j':

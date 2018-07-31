@@ -1,19 +1,58 @@
+import copy
+import logging
 import gkeepapi
-from typing import List
+import typing
+from typing import List, Optional, Union
 
 class Query(object):
     @classmethod
-    def fromConfig(cls, config: dict) -> 'Query':
+    def fromConfig(cls, keep: gkeepapi.Keep, config: dict) -> 'Query':
+        config = copy.deepcopy(config)
+
+        name = config.get('name', '')
         query = config.get('query')
-        labels = config.get('labels')
-        colors = config.get('colors')
+        labels = None
+        colors = None
         pinned = config.get('pinned')
         archived = config.get('archived', False)
         trashed = config.get('trashed', False)
 
-        return cls(query, labels, colors, pinned, archived, trashed)
+        if 'labels' in config:
+            labels = []
+            raw = config.get('labels', [])
 
-    def __init__(self, query=None, labels=None, colors=None, pinned=None, archived=False, trashed=False):
+            if raw:
+                for i in raw:
+                    l = keep.findLabel(i)
+                    labels.append(l)
+                    if l is None:
+                        logging.warn('Label not found %s', i)
+            config['labels'] = labels
+
+        if 'colors' in config:
+            colors = []
+
+            for i in config.get('colors', []):
+                try:
+                    c = gkeepapi.node.ColorValue(i.upper())
+                    colors.append(c)
+                except ValueError:
+                    logging.warn('Color not found %s', i)
+            config['colors'] = colors
+
+        return cls(name, query, labels, colors, pinned, archived, trashed)
+
+    def __init__(
+        self,
+        name: str='',
+        query: Optional[Union[str, typing.re.Pattern]]=None,
+        labels: Optional[List[gkeepapi.node.Label]]=None,
+        colors: Optional[List[gkeepapi.node.ColorValue]]=None,
+        pinned: Optional[bool]=None,
+        archived: Optional[bool]=False,
+        trashed: Optional[bool]=False
+    ):
+        self.name = name
         self.query = query
         self.labels = labels
         self.colors = colors

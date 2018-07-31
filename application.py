@@ -1,4 +1,3 @@
-import copy
 import urwid
 import logging
 import constants
@@ -19,7 +18,7 @@ class Application(urwid.WidgetWrap):
         self.keep = keep
         self.stack = []
 
-        w_main = widget.grid.Grid(self, self.hydrateQuery('default'))
+        w_main = self.hydrateView('default')
         self.stack.append(w_main)
 
         super(Application, self).__init__(w_main)
@@ -71,34 +70,22 @@ class Application(urwid.WidgetWrap):
         elif key == '?':
             self.push(widget.help.Help())
             key = None
+        elif key == 'esc':
+            raise urwid.ExitMainLoop()
         return key
 
-    def hydrateQuery(self, key: str) -> query.Query:
-        views = self.config.get('views', {})
-        view = copy.deepcopy(views.get(key) or {})
+    def hydrateView(self, key: str) -> query.Query:
+        views = self.config.get('views') or {}
+        view = views.get(key) or {}
+        _type = view.get('type', 'grid')
 
-        if 'labels' in view:
-            labels = []
-            raw = view.get('labels', [])
+        if _type == 'kanban':
+            raw_queries = view.get('queries') or []
+            return widget.kanban.KanBan(
+                self,
+                [query.Query.fromConfig(self.keep, raw_query) for raw_query in raw_queries]
+            )
 
-            if raw:
-                for i in raw:
-                    l = self.keep.findLabel(i)
-                    if l is not None:
-                        labels.append(l)
-                    else:
-                        logging.warn('Label not found %s', i)
-            view['labels'] = labels
-
-        if 'colors' in view:
-            colors = []
-
-            for i in view.get('colors', []):
-                try:
-                    c = gkeepapi.node.ColorValue(i.upper())
-                    colors.append(c)
-                except ValueError:
-                    logging.warn('Color not found %s', i)
-            view['colors'] = colors
-
-        return query.Query.fromConfig(view)
+        raw_query = view.get('query') or {}
+        q = query.Query.fromConfig(self.keep, raw_query)
+        return widget.grid.Grid(self, q)

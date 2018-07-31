@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-def abbreviate(text, max_len):
+def abbreviate(text: str, max_len: int) -> str:
     if len(text) <= max_len:
         return text
 

@@ -3,30 +3,29 @@ import constants
 import gkeepapi
 import query
 import widget.note
+from typing import List
 
-class List(urwid.ListBox):
+class NoteList(urwid.Frame):
     def __init__(self, q: query.Query):
         self.query = q
-        super(List, self).__init__(urwid.SimpleFocusListWalker([]))
+        self.w_list = urwid.ListBox(urwid.SimpleFocusListWalker([]))
+
+        super(NoteList, self).__init__(
+            self.w_list,
+            header=urwid.Text(self.query.name, align=urwid.CENTER)
+        )
 
     def refresh(self, keep: gkeepapi.Keep):
-        self.body[:] = [
+        self.w_list.body[:] = [
             urwid.BoxAdapter(widget.note.Note(n), 10) for n in self.query.filter(keep)
         ]
 
 class KanBan(urwid.Columns):
-    def __init__(self, qa: query.Query, qb: query.Query, qc: query.Query):
-        self.lista = List(qa)
-        self.listb = List(qb)
-        self.listc = List(qc)
+    def __init__(self, app: 'application.Application', queries: List[query.Query]):
+        self.lists = [NoteList(q) for q in queries]
 
-        super(KanBan, self).__init__([
-            self.lista,
-            self.listb,
-            self.listc,
-        ], dividechars=1)
+        super(KanBan, self).__init__(self.lists, dividechars=1)
 
     def refresh(self, keep: gkeepapi.Keep):
-        self.lista.refresh(keep)
-        self.listb.refresh(keep)
-        self.listc.refresh(keep)
+        for l in self.lists:
+            l.refresh(keep)
