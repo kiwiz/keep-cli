@@ -1,6 +1,7 @@
 import urwid
 import logging
 import constants
+import json
 import gkeepapi
 import widget.grid
 import widget.kanban
@@ -17,6 +18,8 @@ class Application(urwid.WidgetWrap):
         self.config = config
         self.keep = keep
         self.stack = []
+
+        self.load()
 
         w_main = self.hydrateView('default')
         self.stack.append(w_main)
@@ -71,8 +74,26 @@ class Application(urwid.WidgetWrap):
             self.push(widget.help.Help())
             key = None
         elif key == 'esc':
+            self.save()
             raise urwid.ExitMainLoop()
         return key
+
+    def load(self):
+        username = self.config.get('username', 'user')
+        try:
+            fh = open('%s.keep' % username, 'r')
+            state = json.load(fh)
+            fh.close()
+            self.keep.restore(state)
+        except FileNotFoundError:
+            pass
+
+    def save(self):
+        state = self.keep.dump()
+        username = self.config.get('username', 'user')
+        fh = open('%s.keep' % username, 'w')
+        json.dump(state, fh)
+        fh.close()
 
     def hydrateView(self, key: str) -> query.Query:
         views = self.config.get('views') or {}

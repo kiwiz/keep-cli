@@ -153,4 +153,5 @@ class Edit(urwid.AttrMap):
         elif key == 'esc':
             self._save()
             self.application.pop()
+            key = None
         return key
