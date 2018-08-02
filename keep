@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import argparse, application, yaml, keyring, gkeepapi, urwid, constants
+import sys, argparse, application, yaml, keyring, getpass, gkeepapi, urwid, constants
+from uuid import getnode as get_mac
 
 parser = argparse.ArgumentParser('Keep-CLI')
 parser.add_argument('--config', type=str, default='config.yml', help='Configuration file')
+parser.add_argument('--offline', action='store_true', help='Offline mode')
 
 args = parser.parse_args()
 
@@ -10,13 +12,42 @@ fh = open(args.config, 'r')
 config = yaml.load(fh, Loader=yaml.Loader)
 fh.close()
 
-password = keyring.get_password('google-keep', config['username'])
-
 keep = gkeepapi.Keep()
-keep.login(config['username'], password)
-password = None
 
-app = application.Application(keep)
-loop = urwid.MainLoop(application.Application(config, keep), constants.Palette)
+logged_in = args.offline
+
+token = keyring.get_password('google-keep-token', config['username'])
+if not logged_in and token:
+    print('[+] Authenticating with token')
+    auth = gkeepapi.APIAuth(gkeepapi.Keep.OAUTH_SCOPES)
+    auth._email = config['username']
+    auth._android_id = get_mac()
+    auth.setMasterToken(token)
+    auth.refresh()
+    try:
+        keep.load(auth, sync=False)
+        logged_in = True
+        print('[+] Success!')
+    except gkeepapi.exception.LoginException:
+        print('[+] Invalid token')
+
+if not logged_in:
+    password = getpass.getpass()
+    try:
+        keep.login(config['username'], password)
+        logged_in = True
+        del password
+        token = keep._keep_api._auth.getMasterToken()
+        keyring.set_password('google-keep-token', config['username'], token)
+        print('[+] Success!')
+    except gkeepapi.exception.LoginException:
+        print('[+] Login failed')
+
+if not logged_in:
+    print('[+] Failed to authenticate')
+    sys.exit(1)
+
+app = application.Application(config, keep, args.offline)
+loop = urwid.MainLoop(app, constants.Palette)
 loop.screen.set_terminal_properties(colors=256)
 loop.run()

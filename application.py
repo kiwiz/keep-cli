@@ -14,9 +14,10 @@ class Application(urwid.WidgetWrap):
     """
     Base application widget
     """
-    def __init__(self, config: dict, keep: gkeepapi.Keep):
+    def __init__(self, config: dict, keep: gkeepapi.Keep, offline: bool=False):
         self.config = config
         self.keep = keep
+        self.offline = offline
         self.stack = []
 
         self.load()
@@ -56,7 +57,8 @@ class Application(urwid.WidgetWrap):
         """
         Refresh keep and the active widget
         """
-        self.keep.sync()
+        if not self.offline:
+            self.keep.sync()
         self._w.refresh(self.keep)
 
     def keypress(self, size, key):
