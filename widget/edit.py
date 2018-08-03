@@ -16,7 +16,7 @@ class Colors(urwid.GridFlow):
         super(Colors, self).__init__([
             urwid.Text(('c' + color.value, ' '))
             for color in gkeepapi.node.ColorValue
-        ], 1, 0, 0, 'left')
+        ], 1, 0, 0, urwid.LEFT)
 
 class Item(urwid.Columns):
     def __init__(self, item: gkeepapi.node.ListItem):
@@ -24,7 +24,7 @@ class Item(urwid.Columns):
         self.w_checkbox = urwid.Text(u'☑' if item.checked else u'☐')
         self.w_text = urwid_readline.ReadlineEdit(edit_text=item.text, multiline=True)
         super(Item, self).__init__([
-            ('pack', self.w_checkbox),
+            (urwid.PACK, self.w_checkbox),
             self.w_text,
         ], dividechars=1)
 
@@ -75,7 +75,7 @@ class Edit(urwid.AttrMap):
             urwid.Frame(
                 urwid.Padding(
                     self.w_content,
-                    align='center',
+                    align=urwid.CENTER,
                     left=1,
                     right=1
                 ),

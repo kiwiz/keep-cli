@@ -29,7 +29,7 @@ class Search(urwid.Pile):
             urwid.Frame(
                 urwid.Padding(
                     self.w_content,
-                    align='center',
+                    align=urwid.CENTER,
                     left=1,
                     right=1
                 ),

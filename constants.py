@@ -28,6 +28,9 @@ ColorMap = {
 
 Palette = [
     (Attribute.Selected.value, '', '', '', TextColor[1], 'h242'),
+
+    ('border', '', '', '', 'h254', 'h231'),
+    ('modal', '', '', '', TextColor[1], 'h231'),
 ]
 
 for k, v in ColorMap.items():

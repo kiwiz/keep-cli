@@ -24,6 +24,7 @@ Keys
 Todo
 ----
 
+- Store config/cache in `~/.keep`
 - Add support for color-selection
 - Add support for label-selection
 - Add support for search

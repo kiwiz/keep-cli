@@ -7,7 +7,6 @@ import widget.grid
 import widget.kanban
 import widget.search
 import widget.help
-# import widget.settings
 import query
 
 class Application(urwid.WidgetWrap):
@@ -53,6 +52,18 @@ class Application(urwid.WidgetWrap):
         self.pop()
         self.push(w)
 
+    def overlay(self, w: urwid.Widget=None):
+        w_top = self.stack[-1]
+
+        if w is None:
+            self._w = w_top
+        else:
+            self._w = urwid.Overlay(
+                w, w_top,
+                urwid.CENTER, (urwid.RELATIVE, 80),
+                urwid.MIDDLE, urwid.PACK
+            )
+
     def refresh(self):
         """
         Refresh keep and the active widget
@@ -73,7 +84,7 @@ class Application(urwid.WidgetWrap):
             self.replace(widget.search.Search(self, self.keep))
             key = None
         elif key == '?':
-            self.push(widget.help.Help())
+            self.overlay(widget.help.Help(self))
             key = None
         elif key == 'esc':
             self.save()

@@ -34,11 +34,23 @@ class Grid(urwid.Filler):
             key = 'left'
         elif key == 'l':
             key = 'right'
+        elif key == 'c':
+            note = self.application.keep.createNote()
+            w_edit = widget.edit.Edit(self.application, note)
+            self.application.push(w_edit)
+            key = None
+        elif key == 'C':
+            note = self.application.keep.createList()
+            w_edit = widget.edit.Edit(self.application, note)
+            self.application.push(w_edit)
+            key = None
         elif key == 'enter':
             if self.w_grid.focus is not None:
                 w_edit = widget.edit.Edit(self.application, self.w_grid.focus.note)
                 self.application.push(w_edit)
+            key = None
         elif key == 'esc':
             self.application.pop()
+            key = None
         super(Grid, self).keypress(size, key)
         return key
