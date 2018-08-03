@@ -52,9 +52,6 @@ class Grid(urwid.Filler):
                 w_edit = widget.edit.Edit(self.application, self.w_grid.focus.note)
                 self.application.push(w_edit)
             key = None
-        elif key == 'esc':
-            self.application.pop()
-            key = None
         if self.w_grid.focus is not None:
             key = super(Grid, self).keypress(size, key)
         return key

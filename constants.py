@@ -10,6 +10,7 @@ class Attribute(enum.Enum):
     Selected = 'selected'
 
 TextColor = ('', '#222')
+MutedColor = ('', '#666')
 
 ColorMap = {
     gkeepapi.node.ColorValue.White: ('white', 'h231'),
@@ -29,8 +30,12 @@ ColorMap = {
 Palette = [
     (Attribute.Selected.value, '', '', '', TextColor[1], 'h242'),
 
-    ('border', '', '', '', 'h254', 'h231'),
-    ('modal', '', '', '', TextColor[1], 'h231'),
+    ('BORDER', '', '', '', 'h254', 'h231'),
+    ('TEXT', '', '', '', TextColor[1], 'h231'),
+    ('buTEXT', '', '', '', ','.join([TextColor[1], 'underline', 'bold']), 'h231'),
+    ('bTEXT', '', '', '', ','.join([TextColor[1], 'bold']), 'h231'),
+    ('MUTED', '', '', '', MutedColor[1], 'h231'),
+    ('STATUS', '', '', '', TextColor[1], 'h214'),
 ]
 
 for k, v in ColorMap.items():

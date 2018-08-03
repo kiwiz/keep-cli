@@ -3,13 +3,14 @@ import logging
 import constants
 import json
 import gkeepapi
+import widget.status
 import widget.grid
 import widget.kanban
 import widget.search
 import widget.help
 import query
 
-class Application(urwid.WidgetWrap):
+class Application(urwid.Frame):
     """
     Base application widget
     """
@@ -19,12 +20,14 @@ class Application(urwid.WidgetWrap):
         self.offline = offline
         self.stack = []
 
+        self.w_status = widget.status.Status(self)
+
         self.load()
 
         w_main = self.hydrateView('default')
         self.stack.append(w_main)
 
-        super(Application, self).__init__(w_main)
+        super(Application, self).__init__(w_main, footer=self.w_status)
         self.refresh()
 
     def push(self, w: urwid.Widget):
@@ -32,7 +35,7 @@ class Application(urwid.WidgetWrap):
         Push a widget onto the rendering stack
         """
         self.stack.append(w)
-        self._w = w
+        self.body = w
 
     def pop(self):
         """
@@ -42,8 +45,8 @@ class Application(urwid.WidgetWrap):
             return
 
         self.stack.pop()
-        self._w = self.stack[-1]
-        self._w.refresh(self.keep)
+        self.body = self.stack[-1]
+        self.body.refresh(self.keep)
 
     def replace(self, w: urwid.Widget):
         """
@@ -56,9 +59,9 @@ class Application(urwid.WidgetWrap):
         w_top = self.stack[-1]
 
         if w is None:
-            self._w = w_top
+            self.body = w_top
         else:
-            self._w = urwid.Overlay(
+            self.body = urwid.Overlay(
                 w, w_top,
                 urwid.CENTER, (urwid.RELATIVE, 80),
                 urwid.MIDDLE, urwid.PACK
@@ -70,7 +73,7 @@ class Application(urwid.WidgetWrap):
         """
         if not self.offline:
             self.keep.sync()
-        self._w.refresh(self.keep)
+        self.body.refresh(self.keep)
 
     def keypress(self, size, key):
         """

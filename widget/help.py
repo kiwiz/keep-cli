@@ -1,49 +1,53 @@
 # -*- coding: utf-8 -*-
 import urwid
-import constants
-import gkeepapi
-import logging
+import widget.util
 
-from typing import List
+from typing import Union
 
-keys = [
+docs = [
+    'Navigation',
     (('up', 'k'), 'Navigate up'),
     (('down', 'j'), 'Navigate down'),
     (('left', 'h'), 'Navigate left'),
     (('right', 'l'), 'Navigate right'),
+    ('/', 'Search notes'),
+
+    'Action',
     ('c', 'Compose a new note'),
     ('C', 'Compose a new list'),
     ('r', 'Sync with server'),
-    ('/', 'Search notes'),
-    ('?', 'Open keyboard shortcut help'),
-    ('e', 'Archive note'),
     ('#', 'Trash note'),
     ('f', 'Pin or unpin notes'),
+    ('e', 'Archive note'),
+
+    'Misc',
+    ('?', 'Open keyboard shortcut help'),
     ('Esc', 'Finish editing / Quit'),
 ]
 
 class Line(urwid.Columns):
-    def __init__(self, key, doc):
+    def __init__(self, key: Union[str, tuple], doc: str):
         super(Line, self).__init__([
-            (urwid.WEIGHT, 2, urwid.Text(doc)),
+            (urwid.WEIGHT, 2, urwid.Text(('MUTED', doc))),
             urwid.Text(', '.join(key) if isinstance(key, tuple) else key),
         ], dividechars=1)
 
-class Border(urwid.AttrMap):
-    def __init__(self, original_widget, title=''):
-        super(Border, self).__init__(urwid.LineBox(
-            urwid.AttrMap(urwid.Padding(original_widget, left=1, right=1), 'modal'),
-            tlcorner='█', trcorner='█',
-            blcorner='█', brcorner='█',
-            tline='▀', lline='█', rline='█', bline='▄'
-        ), 'border')
-
-class Help(Border):
+class Help(widget.util.Border):
     def __init__(self, app: 'application.Application'):
         self.application = app
-        super(Help, self).__init__(
-            urwid.Pile((Line(key, doc) for key, doc in keys))
-        )
+
+        content = [
+            urwid.Text(('buTEXT', 'Keyboard shortcuts'), align=urwid.CENTER),
+        ]
+
+        for line in docs:
+            if isinstance(line, str):
+                content.append(urwid.Divider())
+                content.append(urwid.Text(('bTEXT', line)))
+            else:
+                content.append(Line(line[0], line[1]))
+
+        super(Help, self).__init__(urwid.Pile(content))
 
     def selectable(self):
         return True
