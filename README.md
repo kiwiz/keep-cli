@@ -6,9 +6,9 @@ Google Keep frontend for terminals.
 Setup
 -----
 
-Populate creds into keyring with `keyring.set_password('google-keep', config['username'], 'PWD')`
-
-Run `./keep`
+- Copy `config.example.yml` to `config.yml`.
+- Modify as necessary
+- Run `./keep`
 
 Keys
 ----
