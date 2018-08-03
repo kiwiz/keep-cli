@@ -1,2 +1,4 @@
 gkeepapi
 wcwidth
+urwid
+urwid_readline
