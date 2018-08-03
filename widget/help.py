@@ -13,7 +13,7 @@ keys = [
     (('right', 'l'), 'Navigate right'),
     ('c', 'Compose a new note'),
     ('C', 'Compose a new list'),
-    ('r', 'Search notes'),
+    ('r', 'Sync with server'),
     ('/', 'Search notes'),
     ('?', 'Open keyboard shortcut help'),
     ('e', 'Archive note'),

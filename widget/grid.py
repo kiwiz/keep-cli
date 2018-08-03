@@ -25,6 +25,9 @@ class Grid(urwid.Filler):
         if self.w_grid.contents:
             self.w_grid.focus_position = 0
 
+    def selectable(self):
+        return True
+
     def keypress(self, size, key):
         if key == 'j':
             key = 'down'
@@ -52,5 +55,6 @@ class Grid(urwid.Filler):
         elif key == 'esc':
             self.application.pop()
             key = None
-        super(Grid, self).keypress(size, key)
+        if self.w_grid.focus is not None:
+            key = super(Grid, self).keypress(size, key)
         return key

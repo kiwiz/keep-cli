@@ -3,83 +3,53 @@ import urwid
 import constants
 import gkeepapi
 import logging
+import widget.labels
+import widget.edit
 
 from typing import List
 
-class Search(urwid.Pile):
-    def __init__(self, app: 'application.Application', labels: List[gkeepapi.node.Label]):
+class Search(urwid.Filler):
+    def __init__(self, app: 'application.Application'):
         self.application = app
-        self.labels = labels
 
-        tmp = urwid.Text('')
+        self.w_pinned = urwid.CheckBox('Pinned', state=False, has_mixed=True)
+        self.w_archived = urwid.CheckBox('Archived', state='mixed', has_mixed=True)
+        self.w_trashed = urwid.CheckBox('Trashed', state=False, has_mixed=True)
 
-        self.w_title = urwid.Edit(wrap=urwid.CLIP)
-        self.w_text = urwid.Edit(multiline=True)
+        self.w_note = urwid.CheckBox('Note', state=True)
+        self.w_list = urwid.CheckBox('List', state=True)
+
         self.w_labels = widget.labels.Labels()
+        self.w_colors = widget.edit.Colors()
+
+        self.w_labels.setLabels(app.keep.labels(), gkeepapi.node.ColorValue.White)
 
         self.w_header = urwid.Text(u'', align=urwid.RIGHT)
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
-        self.w_content = urwid.Frame(
-            urwid.Filler(self.w_text, valign=urwid.TOP),
-            header=tmp,
-            footer=tmp
-        )
 
-        super(Edit, self).__init__(
-            urwid.Frame(
-                urwid.Padding(
-                    self.w_content,
-                    align=urwid.CENTER,
-                    left=1,
-                    right=1
-                ),
-                header=self.w_header,
-                footer=self.w_footer,
-            ),
-            note.color.value
-        )
+        super(Search, self).__init__(urwid.Pile([
+            urwid.Text('State'),
+            self.w_pinned,
+            self.w_archived,
+            self.w_trashed,
 
-        self._updateContent()
-        self._updateLabels()
-        self._updatePinned()
-        self._updateArchived()
+            urwid.Divider(),
 
-    def _updateContent(self):
-        w_title = (None, self.w_content.options())
-        if self.note.title:
-            w_title = (
-                urwid.AttrMap(self.w_title, 'b' + self.note.color.value),
-                self.w_content.options()
-            )
-            self.w_title.set_edit_text(self.note.title)
+            urwid.Text('Type'),
+            self.w_note,
+            self.w_list,
 
-        self.w_content.contents['header'] = w_title
-        self.w_text.set_edit_text(self.note.text)
+            urwid.Divider(),
 
-    def _updateLabels(self):
-        w_labels = (None, self.w_content.options())
-        if len(self.note.labels):
-            w_labels = (self.w_labels, self.w_content.options())
-            self.w_labels.setLabels(self.note.labels.all(), self.note.color)
+            urwid.Text('Labels'),
+            self.w_labels,
 
-        self.w_content.contents['footer'] = w_labels
+            urwid.Divider(),
 
-    def _updateArchived(self):
-        self.w_footer.set_text('📥' if self.note.archived else '')
-
-    def _updatePinned(self):
-        self.w_header.set_text('📍' if self.note.pinned else '')
+            urwid.Text('Colors'),
+            self.w_colors
+        ]))
 
     def keypress(self, size, key):
-        key = super(Edit, self).keypress(size, key)
-        if key == 'f':
-            self.note.pinned = not self.note.pinned
-            self._updatePinned()
-            key = None
-        elif key == 'e':
-            self.note.archived = not self.note.archived
-            self._updateArchived()
-            key = None
-        elif key == 'esc':
-            self.application.pop()
+        key = super(Search, self).keypress(size, key)
         return key

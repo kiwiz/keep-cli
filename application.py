@@ -81,7 +81,7 @@ class Application(urwid.WidgetWrap):
             self.refresh()
             key = None
         elif key == '/':
-            self.replace(widget.search.Search(self, self.keep))
+            self.replace(widget.search.Search(self))
             key = None
         elif key == '?':
             self.overlay(widget.help.Help(self))

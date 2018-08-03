@@ -43,4 +43,4 @@ for k, v in ColorMap.items():
     # Label variant
     Palette.append(('l' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'standout']), v[1]))
     # Color variant
-    Palette.append(('c' + k.value, v[0], v[0], '', v[1], v[1]))
+    Palette.append(('c' + k.value, v[0], v[0], '', TextColor[1], v[1]))

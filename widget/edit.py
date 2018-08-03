@@ -11,11 +11,21 @@ from typing import List
 NEXT_SELECTABLE = 'next selectable'
 PREV_SELECTABLE = 'prev selectable'
 
+class Color(urwid.Text):
+    def __init__(self, color: gkeepapi.node.ColorValue, selected=False):
+        super(Color, self).__init__(('c' + color.value, '✔'))
+
+    def keypress(self, size, key):
+        self.set_text('x')
+        return key
+
+    def selectable(self):
+        return True
+
 class Colors(urwid.GridFlow):
     def __init__(self):
         super(Colors, self).__init__([
-            urwid.Text(('c' + color.value, ' '))
-            for color in gkeepapi.node.ColorValue
+            Color(color) for color in gkeepapi.node.ColorValue
         ], 1, 0, 0, urwid.LEFT)
 
 class Item(urwid.Columns):
