@@ -106,10 +106,11 @@ class Items(urwid.ListBox):
         if key == 'backspace':
             if self.focus_position > 0:
                 text = self.body[self.focus_position].getText()
+                last = self.focus_position == len(self.body) - 1
                 del self.body[self.focus_position]
-                self.focus.appendText(text)
-                if self.focus_position > len(self.body) - 1:
+                if not last:
                     self.focus_position -= 1
+                self.focus.appendText(text)
 
         return key
 
