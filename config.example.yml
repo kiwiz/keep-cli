@@ -1,18 +1,28 @@
 username: 'user@gmail.com'
-size:
+size: # Size of notes
   width: 26
   height: 10
-views:
+views: # Saved note views
   default:
     type: grid
     query:
-  yellow:
-    query:
-      type: grid
-      name: Yellow
-      colors:
-      - yellow
-      pinned: true
-      labels:
-      - todo
+      name: Active notes
       archived: false
+      trashed: false
+  archived:
+    type: grid
+    query:
+      name: Archived notes
+      archived: true
+      trashed: false
+# example:
+#   type: grid
+#   query:
+#     name: Example
+#     labels:
+#     - todo
+#     colors:
+#     - yellow
+#     pinned: true
+#     archived: true
+#     trashed: true

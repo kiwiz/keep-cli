@@ -1,6 +1,6 @@
+import os
 import urwid
 import logging
-import constants
 import json
 import gkeepapi
 import widget.status
@@ -14,9 +14,10 @@ class Application(urwid.Frame):
     """
     Base application widget
     """
-    def __init__(self, config: dict, keep: gkeepapi.Keep, offline: bool=False):
-        self.config = config
+    def __init__(self, keep: gkeepapi.Keep, config: dict, config_dir: str, offline: bool=False):
         self.keep = keep
+        self.config = config
+        self.config_dir = config_dir
         self.offline = offline
         self.stack = []
 
@@ -73,6 +74,7 @@ class Application(urwid.Frame):
         """
         if not self.offline:
             self.keep.sync()
+        self.save()
         self.body.refresh(self.keep)
 
     def keypress(self, size, key):
@@ -84,30 +86,43 @@ class Application(urwid.Frame):
             self.refresh()
             key = None
         elif key == '/':
-            self.replace(widget.search.Search(self))
+            self.push(widget.search.Search(self))
             key = None
         elif key == '?':
             self.overlay(widget.help.Help(self))
             key = None
         elif key == 'esc':
-            self.save()
-            raise urwid.ExitMainLoop()
+            if len(self.stack) <= 1:
+                self.save()
+                raise urwid.ExitMainLoop()
+            self.pop()
         return key
 
     def load(self):
         username = self.config.get('username', 'user')
+        cache_file = os.path.join(self.config_dir, '%s.json' % username)
+
         try:
-            fh = open('%s.keep' % username, 'r')
-            state = json.load(fh)
-            fh.close()
-            self.keep.restore(state)
+            fh = open(cache_file, 'r')
         except FileNotFoundError:
-            pass
+            logging.warning('Unable to find state file: %s', cache_file)
+            return
+
+        try:
+            state = json.load(fh)
+        except json.decoder.JSONDecodeError:
+            logging.warning('Unable to load state file: %s', cache_file)
+            return
+
+        fh.close()
+        self.keep.restore(state)
 
     def save(self):
-        state = self.keep.dump()
         username = self.config.get('username', 'user')
-        fh = open('%s.keep' % username, 'w')
+        cache_file = os.path.join(self.config_dir, '%s.json' % username)
+
+        state = self.keep.dump()
+        fh = open(cache_file, 'w')
         json.dump(state, fh)
         fh.close()
 
