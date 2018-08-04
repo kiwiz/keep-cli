@@ -28,7 +28,7 @@ docs = [
 class Line(urwid.Columns):
     def __init__(self, key: Union[str, tuple], doc: str):
         super(Line, self).__init__([
-            (urwid.WEIGHT, 2, urwid.Text(('MUTED', doc))),
+            (urwid.WEIGHT, 2, urwid.Text(('mTEXT', doc))),
             urwid.Text(', '.join(key) if isinstance(key, tuple) else key),
         ], dividechars=1)
 

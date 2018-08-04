@@ -22,7 +22,8 @@ class Color(urwid.Text):
         return key
 
     def update(self, selected):
-        self.set_text(('c' + self.color.value, ' ✔ ' if selected else '░░░'))
+        attr = ('c' if selected else 'cm') + self.color.value
+        self.set_text((attr, ' ✔ '))
 
     def selectable(self):
         return True

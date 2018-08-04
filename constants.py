@@ -15,27 +15,30 @@ MutedColor = ('', '#666')
 ColorMap = {
     gkeepapi.node.ColorValue.White: ('white', 'h231'),
     gkeepapi.node.ColorValue.Red: ('dark red', 'h210'),
-    gkeepapi.node.ColorValue.Orange: ('dark red', 'h222'),
-    gkeepapi.node.ColorValue.Yellow: ('brown', 'h228'),
+    gkeepapi.node.ColorValue.Orange: ('light red', 'h222'),
+    gkeepapi.node.ColorValue.Yellow: ('yellow', 'h228'),
     gkeepapi.node.ColorValue.Green: ('dark green', 'h192'),
     gkeepapi.node.ColorValue.Teal: ('dark cyan', 'h159'),
-    gkeepapi.node.ColorValue.Blue: ('dark blue', 'h117'),
+    gkeepapi.node.ColorValue.Blue: ('light blue', 'h117'),
     gkeepapi.node.ColorValue.DarkBlue: ('dark blue', 'h111'),
     gkeepapi.node.ColorValue.Purple: ('dark magenta', 'h141'),
-    gkeepapi.node.ColorValue.Pink: ('dark magenta', 'h218'),
+    gkeepapi.node.ColorValue.Pink: ('light magenta', 'h218'),
     gkeepapi.node.ColorValue.Brown: ('brown', 'h181'),
     gkeepapi.node.ColorValue.Gray: ('light gray', 'h188'),
 }
 
-Palette = [
-    (Attribute.Selected.value, '', '', '', TextColor[1], 'h242'),
+def _(*attrs):
+    return ','.join(attrs)
 
-    ('BORDER', '', '', '', 'h254', 'h231'),
-    ('TEXT', '', '', '', TextColor[1], 'h231'),
-    ('buTEXT', '', '', '', ','.join([TextColor[1], 'underline', 'bold']), 'h231'),
-    ('bTEXT', '', '', '', ','.join([TextColor[1], 'bold']), 'h231'),
-    ('MUTED', '', '', '', MutedColor[1], 'h231'),
-    ('STATUS', '', '', '', TextColor[1], 'h214'),
+Palette = [
+    (Attribute.Selected.value, 'black', 'dark gray', '', TextColor[1], 'h242'),
+
+    ('BORDER', 'light gray', 'white', '', 'h254', 'h231'),
+    ('TEXT', 'black', 'white', '', TextColor[1], 'h231'),
+    ('buTEXT', _('black', 'underline', 'bold'), 'white', '', _(TextColor[1], 'underline', 'bold'), 'h231'),
+    ('bTEXT', _('black', 'bold'), 'white', '', _(TextColor[1], 'bold'), 'h231'),
+    ('mTEXT', 'dark gray', 'white', '', MutedColor[1], 'h231'),
+    ('STATUS', 'black', 'yellow', '', TextColor[1], 'h214'),
 ]
 
 for k, v in ColorMap.items():
@@ -49,3 +52,5 @@ for k, v in ColorMap.items():
     Palette.append(('l' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'standout']), v[1]))
     # Color variant
     Palette.append(('c' + k.value, v[0], v[0], '', TextColor[1], v[1]))
+    # Color variant
+    Palette.append(('cm' + k.value, v[0], v[0], '', MutedColor[1], v[1]))
