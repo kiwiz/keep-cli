@@ -30,9 +30,16 @@ if not os.path.isdir(config_dir):
     os.makedirs(config_dir)
 
 config_file = os.path.join(config_dir, 'config.yml')
-fh = open(config_file, 'r')
-config = yaml.load(fh, Loader=yaml.Loader)
-fh.close()
+config = {}
+if os.path.isfile(config_file):
+    with open(config_file, 'r') as fh:
+        config = yaml.load(fh, Loader=yaml.Loader)
+else:
+    config['user'] = input('Username: ')
+    with open(config_file, 'w') as fh:
+        yaml.dump(config, fh, default_flow_style=False)
+
+die
 
 keep = gkeepapi.Keep()
 
