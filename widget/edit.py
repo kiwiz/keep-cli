@@ -13,11 +13,16 @@ PREV_SELECTABLE = 'prev selectable'
 
 class Color(urwid.Text):
     def __init__(self, color: gkeepapi.node.ColorValue, selected=False):
-        super(Color, self).__init__(('c' + color.value, '✔'))
+        self.color = color
+        super(Color, self).__init__('')
+        self.update(False)
 
     def keypress(self, size, key):
-        self.set_text('x')
+        self.update(key == ' ')
         return key
+
+    def update(self, selected):
+        self.set_text(('c' + self.color.value, ' ✔ ' if selected else '░░░'))
 
     def selectable(self):
         return True
@@ -26,20 +31,46 @@ class Colors(urwid.GridFlow):
     def __init__(self):
         super(Colors, self).__init__([
             Color(color) for color in gkeepapi.node.ColorValue
-        ], 1, 0, 0, urwid.LEFT)
+        ], 3, 1, 0, urwid.LEFT)
 
 class Item(urwid.Columns):
     def __init__(self, item: gkeepapi.node.ListItem):
         self.id = item.id
         self.w_checkbox = urwid.Text(u'☑' if item.checked else u'☐')
-        self.w_text = urwid_readline.ReadlineEdit(edit_text=item.text, multiline=True)
+        self.w_text = urwid_readline.ReadlineEdit(edit_text=item.text)
         super(Item, self).__init__([
             (urwid.PACK, self.w_checkbox),
             self.w_text,
         ], dividechars=1)
 
+    def setPos(self, pos):
+        self.w_text.edit_pos = pos
+
     def getText(self):
         return self.w_text.get_edit_text()
+
+    def appendText(self, s):
+        pos = len(self.getText())
+        self.w_text.edit_pos = pos
+        self.w_text.insert_text(s)
+        self.w_text.edit_pos = pos
+
+    def cutToEnd(self):
+        text = self.getText()
+        pos = self.w_text.edit_pos
+
+        suffix = text[pos:]
+        self.w_text.set_edit_text(text[:pos])
+        return suffix
+
+    def keypress(self, size, key):
+        if key == 'backspace' and self.w_text.edit_pos == 0:
+            return key
+        if key == 'enter':
+            return key
+
+        key = super(Item, self).keypress(size, key)
+        return key
 
 class Items(urwid.ListBox):
     def __init__(self):
@@ -59,6 +90,27 @@ class Items(urwid.ListBox):
             return actual_key(self._keypress_down(size))
 
         key = super(Items, self).keypress(size, key)
+        if key == 'enter':
+            pos = 0
+            text = ''
+            if self.focus is not None:
+                text = self.focus.cutToEnd()
+                pos = self.focus_position + 1
+
+            listitem = gkeepapi.node.ListItem()
+            listitem.text = text
+            self.body.insert(pos, Item(listitem))
+            self.focus.setPos(0)
+            self.focus_position = pos
+            key = None
+        if key == 'backspace':
+            if self.focus_position > 0:
+                text = self.body[self.focus_position].getText()
+                del self.body[self.focus_position]
+                self.focus.appendText(text)
+                if self.focus_position > len(self.body) - 1:
+                    self.focus_position -= 1
+
         return key
 
 class Edit(urwid.AttrMap):

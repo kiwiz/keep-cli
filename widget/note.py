@@ -86,5 +86,5 @@ class Note(urwid.AttrMap):
             self.note.trashed = True
             key = None
 
-        super(Note, self).keypress(size, key)
+        key = super(Note, self).keypress(size, key)
         return key
