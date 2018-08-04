@@ -6,5 +6,6 @@ class Status(urwid.AttrMap):
         self.application = app
 
         super(Status, self).__init__(urwid.Columns([
-            urwid.Text('Press ? for help')
+            urwid.Text(self.application.config['username']),
+            urwid.Text('Press ? for help', align=urwid.RIGHT),
         ]), 'STATUS')

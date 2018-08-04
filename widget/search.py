@@ -5,10 +5,11 @@ import gkeepapi
 import logging
 import widget.labels
 import widget.edit
+import widget.util
 
 from typing import List
 
-class Search(urwid.Filler):
+class Search(widget.util.Border):
     def __init__(self, app: 'application.Application'):
         self.application = app
 
@@ -28,25 +29,29 @@ class Search(urwid.Filler):
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
 
         super(Search, self).__init__(urwid.Pile([
-            urwid.Text('State'),
+            urwid.Text(('buTEXT', 'Search'), align=urwid.CENTER),
+
+            urwid.Divider(),
+
+            urwid.Text(('bTEXT', 'State')),
             self.w_pinned,
             self.w_archived,
             self.w_trashed,
 
             urwid.Divider(),
 
-            urwid.Text('Type'),
+            urwid.Text(('bTEXT', 'Type')),
             self.w_note,
             self.w_list,
 
             urwid.Divider(),
 
-            urwid.Text('Labels'),
+            urwid.Text(('bTEXT', 'Labels')),
             self.w_labels,
 
             urwid.Divider(),
 
-            urwid.Text('Colors'),
+            urwid.Text(('bTEXT', 'Colors')),
             self.w_colors
         ]))
 

@@ -19,6 +19,7 @@ class Application(urwid.Frame):
         self.config = config
         self.config_dir = config_dir
         self.offline = offline
+        self.w_overlay = None
         self.stack = []
 
         self.w_status = widget.status.Status(self)
@@ -57,6 +58,7 @@ class Application(urwid.Frame):
         self.push(w)
 
     def overlay(self, w: urwid.Widget=None):
+        self.w_overlay = w
         w_top = self.stack[-1]
 
         if w is None:
@@ -86,16 +88,19 @@ class Application(urwid.Frame):
             self.refresh()
             key = None
         elif key == '/':
-            self.push(widget.search.Search(self))
+            self.overlay(widget.search.Search(self))
             key = None
         elif key == '?':
             self.overlay(widget.help.Help(self))
             key = None
         elif key == 'esc':
-            if len(self.stack) <= 1:
-                self.save()
+            if self.w_overlay is not None:
+                self.overlay(None)
+            elif len(self.stack) <= 1:
+                self.refresh()
                 raise urwid.ExitMainLoop()
-            self.pop()
+            else:
+                self.pop()
         return key
 
     def load(self):
@@ -105,13 +110,13 @@ class Application(urwid.Frame):
         try:
             fh = open(cache_file, 'r')
         except FileNotFoundError:
-            logging.warning('Unable to find state file: %s', cache_file)
+            logging.warn('Unable to find state file: %s', cache_file)
             return
 
         try:
             state = json.load(fh)
         except json.decoder.JSONDecodeError:
-            logging.warning('Unable to load state file: %s', cache_file)
+            logging.warn('Unable to load state file: %s', cache_file)
             return
 
         fh.close()
