@@ -7,6 +7,7 @@ import widget.status
 import widget.grid
 import widget.kanban
 import widget.search
+import widget.views
 import widget.help
 import query
 
@@ -92,6 +93,9 @@ class Application(urwid.Frame):
             key = None
         elif key == '?':
             self.overlay(widget.help.Help(self))
+            key = None
+        elif key == 'g':
+            self.overlay(widget.views.Views(self))
             key = None
         elif key == 'esc':
             if self.w_overlay is not None:

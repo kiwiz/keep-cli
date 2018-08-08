@@ -13,5 +13,8 @@ Setup
 Todo
 ----
 
-- Add support for color-selection
-- Add support for label-selection
+- Search form
+    - Add support for color-selection
+    - Add support for label-selection
+    - Save queries
+- Load views

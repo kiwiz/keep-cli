@@ -39,7 +39,8 @@ else:
         'username': input('Username: '),
         'views': {
             'default': {
-                'type': 'grid'
+                'name': 'Default',
+                'type': 'grid',
             },
         },
     }

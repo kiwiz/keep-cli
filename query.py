@@ -44,6 +44,17 @@ class Query(object):
 
         return cls(name, query, labels, colors, pinned, archived, trashed)
 
+    def toConfig(cls, q: 'Query') -> dict:
+        return {
+            name: q.name,
+            query: str(q.query),
+            labels: [label.name for label in q.labels] if q.labels else None,
+            colors: [color.value.lower() for color in q.colors] if q.colors else None,
+            pinned: q.pinned,
+            archived: q.archived,
+            trashed: q.trashed,
+        }
+
     def __init__(
         self,
         name: str='',
