@@ -35,14 +35,31 @@ class Colors(urwid.GridFlow):
         ], 3, 1, 0, urwid.LEFT)
 
 class Item(urwid.Columns):
-    def __init__(self, item: gkeepapi.node.ListItem):
+    def __init__(self, item: gkeepapi.node.ListItem, indented=None):
         self.id = item.id
+        self.indented = indented if indented is not None else item.indented
+        self.w_indent = urwid.Text('')
         self.w_checkbox = urwid.Text(u'☑' if item.checked else u'☐')
         self.w_text = urwid_readline.ReadlineEdit(edit_text=item.text)
         super(Item, self).__init__([
+            (urwid.PACK, self.w_indent),
             (urwid.PACK, self.w_checkbox),
             self.w_text,
         ], dividechars=1)
+
+        self._updateIndent()
+
+    def indent(self):
+        self.indented = True
+        self._updateIndent()
+
+    def dedent(self):
+        self.indented = False
+        self._updateIndent()
+
+    def _updateIndent(self):
+        self.w_indent.set_text(' ' if self.indented else '')
+        self._invalidate()
 
     def setPos(self, pos):
         self.w_text.edit_pos = pos
@@ -94,17 +111,20 @@ class Items(urwid.ListBox):
         if key == 'enter':
             pos = 0
             text = ''
+            indented = None
             if self.focus is not None:
                 text = self.focus.cutToEnd()
                 pos = self.focus_position + 1
 
-            listitem = gkeepapi.node.ListItem()
-            listitem.text = text
-            self.body.insert(pos, Item(listitem))
+            if pos > 0:
+                indented = self.body[pos - 1].indented
+            item = gkeepapi.node.ListItem()
+            item.text = text
+            self.body.insert(pos, Item(item, indented))
             self.focus.setPos(0)
             self.focus_position = pos
             key = None
-        if key == 'backspace':
+        elif key == 'backspace':
             if self.focus_position > 0:
                 text = self.body[self.focus_position].getText()
                 last = self.focus_position == len(self.body) - 1
@@ -112,6 +132,14 @@ class Items(urwid.ListBox):
                 if not last:
                     self.focus_position -= 1
                 self.focus.appendText(text)
+        elif key == 'meta [':
+            self.body[self.focus_position].dedent()
+            key = None
+        elif key == 'meta ]':
+            if self.focus_position > 0:
+                self.body[self.focus_position].indent()
+            key = None
+        return key
 
         return key
 
@@ -127,7 +155,7 @@ class Edit(urwid.AttrMap):
         self.w_list = Items()
         self.w_labels = widget.labels.Labels()
 
-        self.w_header = urwid.Text(u'', align=urwid.RIGHT)
+        self.w_state = urwid.Text(u'', align=urwid.RIGHT)
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
         self.w_content = urwid.Frame(
             self.w_list,
@@ -143,7 +171,7 @@ class Edit(urwid.AttrMap):
                     left=1,
                     right=1
                 ),
-                header=self.w_header,
+                header=self.w_state,
                 footer=self.w_footer,
             ),
             note.color.value
@@ -151,8 +179,7 @@ class Edit(urwid.AttrMap):
 
         self._updateContent()
         self._updateLabels()
-        self._updatePinned()
-        self._updateArchived()
+        self._updateState()
 
     def _updateContent(self):
         self.w_title.set_edit_text(self.note.title)
@@ -181,26 +208,44 @@ class Edit(urwid.AttrMap):
 
         self.w_content.contents['footer'] = w_labels
 
-    def _updateArchived(self):
-        self.w_footer.set_text('📥' if self.note.archived else '')
-
-    def _updatePinned(self):
-        self.w_header.set_text('📍' if self.note.pinned else '')
+    def _updateState(self):
+        parts = [
+            '🔄' if self.note.dirty else '  ',
+            '🗃' if self.note.archived else '  ',
+            '📍' if self.note.pinned else '  ',
+        ]
+        self.w_state.set_text(''.join(parts))
 
     def _save(self):
         self.note.title = self.w_title.get_edit_text()
         if isinstance(self.note, gkeepapi.node.List):
-            for child in self.note.children:
-                self.note.remove(child)
+            for item in self.note.items:
+                self.note.remove(item)
 
-            entries = {item.id: item for item in self.w_list.body}
-            old_items = {item.id: item for item in self.note.children}
-            for id_, w_item in entries.items():
+            old_items = {item.id: item for item in self.note.items}
+            for i, w_item in enumerate(self.w_list.body):
                 item = gkeepapi.node.ListItem(parent_id=self.note.id)
-                if id_ in old_items:
-                    item = old_items[id_]
+                if w_item.id in old_items:
+                    item = old_items[w_item.id]
+
+                item.checked = True
                 item.text = w_item.getText()
                 self.note.append(item)
+
+                curr = None
+                prev = item.super_list_item_id
+                if i > 0 and w_item.indented:
+                    curr = self.w_list.body[i - 1].id
+
+                if prev != curr:
+                    if prev is not None:
+                        old_items[prev].dedent(item)
+
+                    if curr is not None:
+                        raise Exception(curr + str(self.note._children.keys()))
+                        self.note.get(curr).indent(item)
+
+
         else:
             self.note.text = self.w_text.get_edit_text()
 
@@ -208,11 +253,11 @@ class Edit(urwid.AttrMap):
         key = super(Edit, self).keypress(size, key)
         if key == 'f':
             self.note.pinned = not self.note.pinned
-            self._updatePinned()
+            self._updateState()
             key = None
         elif key == 'e':
             self.note.archived = not self.note.archived
-            self._updateArchived()
+            self._updateState()
             key = None
         elif key == 'esc':
             self._save()

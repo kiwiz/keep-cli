@@ -20,6 +20,10 @@ docs = [
     ('f', 'Pin or unpin notes'),
     ('e', 'Archive note'),
 
+    'Editor',
+    ('meta + [', 'Dedent list item'),
+    ('meta + ]', 'Indent list item'),
+
     'Misc',
     ('?', 'Open keyboard shortcut help'),
     ('Esc', 'Finish editing / Quit'),
