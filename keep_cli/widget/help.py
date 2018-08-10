@@ -21,8 +21,9 @@ docs = [
     ('e', 'Archive note'),
 
     'Editor',
-    ('meta + [', 'Dedent list item'),
-    ('meta + ]', 'Indent list item'),
+    ('meta + ] / [', 'Indent/Dedent list item'),
+    ('meta + n / p', 'Move list item to next/previous position'),
+    ('meta + x', 'Check/Uncheck list item'),
 
     'Misc',
     ('?', 'Open keyboard shortcut help'),

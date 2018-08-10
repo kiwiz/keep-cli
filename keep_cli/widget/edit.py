@@ -37,9 +37,10 @@ class Colors(urwid.GridFlow):
 class Item(urwid.Columns):
     def __init__(self, item: gkeepapi.node.ListItem, indented=None):
         self.id = item.id
+        self.checked = item.checked
         self.indented = indented if indented is not None else item.indented
         self.w_indent = urwid.Text('')
-        self.w_checkbox = urwid.Text(u'☑' if item.checked else u'☐')
+        self.w_checkbox = urwid.Text('')
         self.w_text = urwid_readline.ReadlineEdit(edit_text=item.text)
         super(Item, self).__init__([
             (urwid.PACK, self.w_indent),
@@ -48,6 +49,7 @@ class Item(urwid.Columns):
         ], dividechars=1)
 
         self._updateIndent()
+        self.updateChecked(self.checked)
 
     def indent(self):
         self.indented = True
@@ -59,6 +61,14 @@ class Item(urwid.Columns):
 
     def _updateIndent(self):
         self.w_indent.set_text(' ' if self.indented else '')
+        self._invalidate()
+
+    def toggleCheck(self):
+        self.updateChecked(not self.checked)
+
+    def updateChecked(self, checked):
+        self.checked = checked
+        self.w_checkbox.set_text(u'☑' if checked else u'☐')
         self._invalidate()
 
     def setPos(self, pos):
@@ -125,21 +135,45 @@ class Items(urwid.ListBox):
             self.focus_position = pos
             key = None
         elif key == 'backspace':
-            if self.focus_position > 0:
-                text = self.body[self.focus_position].getText()
-                last = self.focus_position == len(self.body) - 1
-                del self.body[self.focus_position]
+            pos = self.focus_position
+            if pos > 0:
+                text = self.body[pos].getText()
+                last = pos == len(self.body) - 1
+                del self.body[pos]
                 if not last:
                     self.focus_position -= 1
                 self.focus.appendText(text)
         elif key == 'meta [':
-            self.body[self.focus_position].dedent()
+            pos = self.focus_position
+            self.body[pos].dedent()
             key = None
         elif key == 'meta ]':
-            if self.focus_position > 0:
-                self.body[self.focus_position].indent()
+            pos = self.focus_position
+            if pos > 0:
+                self.body[pos].indent()
             key = None
-        return key
+        elif key == 'meta p':
+            pos = self.focus_position
+            if pos > 0:
+                tmp = self.body[pos]
+                self.body[pos] = self.body[pos - 1]
+                self.body[pos - 1] = tmp
+                if pos - 1 == 0:
+                    self.body[pos - 1].dedent()
+                self.focus_position = pos - 1
+            key = None
+        elif key == 'meta n':
+            pos = self.focus_position
+            if pos < len(self.body) - 1:
+                tmp = self.body[pos]
+                self.body[pos] = self.body[pos + 1]
+                self.body[pos + 1] = tmp
+                self.focus_position = pos + 1
+            key = None
+        elif key == 'meta x':
+            pos = self.focus_position
+            self.body[pos].toggleCheck()
+            key = None
 
         return key
 
@@ -217,37 +251,41 @@ class Edit(urwid.AttrMap):
         self.w_state.set_text(''.join(parts))
 
     def _save(self):
-        self.note.title = self.w_title.get_edit_text()
-        if isinstance(self.note, gkeepapi.node.List):
-            for item in self.note.items:
-                self.note.remove(item)
+        title = self.w_title.get_edit_text()
+        if self.note.title != title:
+            self.note.title = title
 
-            old_items = {item.id: item for item in self.note.items}
-            for i, w_item in enumerate(self.w_list.body):
-                item = gkeepapi.node.ListItem(parent_id=self.note.id)
-                if w_item.id in old_items:
-                    item = old_items[w_item.id]
+        if not isinstance(self.note, gkeepapi.node.List):
+            text = self.w_text.get_edit_text()
+            if self.note.text != text:
+                self.note.text = text
+            return
 
-                item.checked = True
-                item.text = w_item.getText()
-                self.note.append(item)
+        old_items = {item.id: item for item in self.note.items}
+        for item in self.note.items:
+            self.note.remove(item)
 
-                curr = None
-                prev = item.super_list_item_id
-                if i > 0 and w_item.indented:
-                    curr = self.w_list.body[i - 1].id
+        for i, w_item in enumerate(self.w_list.body):
+            item = gkeepapi.node.ListItem(parent_id=self.note.id)
+            if w_item.id in old_items:
+                item = old_items[w_item.id]
 
-                if prev != curr:
-                    if prev is not None:
-                        old_items[prev].dedent(item)
+            if item.checked != w_item.checked:
+                item.checked = w_item.checked
+            item.text = w_item.getText()
+            self.note.append(item)
 
-                    if curr is not None:
-                        raise Exception(curr + str(self.note._children.keys()))
-                        self.note.get(curr).indent(item)
+            curr = None
+            prev = item.super_list_item_id
+            if i > 0 and w_item.indented:
+                curr = self.w_list.body[i - 1].id
 
+            if prev != curr:
+                if prev is not None:
+                    old_items[prev].dedent(item)
 
-        else:
-            self.note.text = self.w_text.get_edit_text()
+                if curr is not None:
+                    self.note.get(curr).indent(item)
 
     def keypress(self, size, key):
         key = super(Edit, self).keypress(size, key)
