@@ -3,13 +3,13 @@ import urwid
 import logging
 import json
 import gkeepapi
-import widget.status
-import widget.grid
-import widget.kanban
-import widget.search
-import widget.views
-import widget.help
-import query
+from .widget import status
+from .widget import grid
+from .widget import kanban
+from .widget import search
+from .widget import views
+from .widget import help
+from . import query
 
 class Application(urwid.Frame):
     """
@@ -23,7 +23,7 @@ class Application(urwid.Frame):
         self.w_overlay = None
         self.stack = []
 
-        self.w_status = widget.status.Status(self)
+        self.w_status = status.Status(self)
 
         self.load()
 
@@ -89,13 +89,13 @@ class Application(urwid.Frame):
             self.refresh()
             key = None
         elif key == '/':
-            self.overlay(widget.search.Search(self))
+            self.overlay(search.Search(self))
             key = None
         elif key == '?':
-            self.overlay(widget.help.Help(self))
+            self.overlay(help.Help(self))
             key = None
         elif key == 'g':
-            self.overlay(widget.views.Views(self))
+            self.overlay(views.Views(self))
             key = None
         elif key == 'esc':
             if self.w_overlay is not None:
@@ -142,11 +142,11 @@ class Application(urwid.Frame):
 
         if _type == 'kanban':
             raw_queries = view.get('queries') or []
-            return widget.kanban.KanBan(
+            return kanban.KanBan(
                 self,
                 [query.Query.fromConfig(self.keep, raw_query) for raw_query in raw_queries]
             )
 
         raw_query = view.get('query') or {}
         q = query.Query.fromConfig(self.keep, raw_query)
-        return widget.grid.Grid(self, q)
+        return grid.Grid(self, q)

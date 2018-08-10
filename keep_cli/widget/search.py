@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import urwid
-import constants
 import gkeepapi
 import logging
-import widget.labels
-import widget.edit
-import widget.util
+from . import labels
+from . import edit
+from . import util
+from .. import constants
 
 from typing import List
 
-class Search(widget.util.Border):
+class Search(util.Border):
     def __init__(self, app: 'application.Application'):
         self.application = app
 
@@ -20,8 +20,8 @@ class Search(widget.util.Border):
         self.w_note = urwid.CheckBox('Note', state=True)
         self.w_list = urwid.CheckBox('List', state=True)
 
-        self.w_labels = widget.labels.Labels()
-        self.w_colors = widget.edit.Colors()
+        self.w_labels = labels.Labels()
+        self.w_colors = edit.Colors()
 
         self.w_labels.setLabels(app.keep.labels(), gkeepapi.node.ColorValue.White)
 

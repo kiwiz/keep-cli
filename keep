@@ -2,14 +2,13 @@
 import sys
 import os
 import argparse
-import application
 import yaml
 import keyring
 import getpass
 import gkeepapi
 import urwid
-import constants
 import logging
+from keep_cli import application, constants
 from uuid import getnode as get_mac
 
 logger = logging.getLogger('keep-cli')

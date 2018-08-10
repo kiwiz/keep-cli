@@ -1,10 +1,9 @@
 import urwid
 import logging
 import gkeepapi
-import widget.note
-import widget.edit
-import application
-import query
+from . import note
+from . import edit
+from .. import query
 
 class Grid(urwid.Filler):
     def __init__(self, app: 'application.Application', q: query.Query):
@@ -20,7 +19,7 @@ class Grid(urwid.Filler):
 
     def refresh(self, keep: gkeepapi.Keep):
         self.w_grid.contents = [
-            (urwid.BoxAdapter(widget.note.Note(n), self.size[1]), self.w_grid.options()) for n in self.query.filter(keep)
+            (urwid.BoxAdapter(note.Note(n), self.size[1]), self.w_grid.options()) for n in self.query.filter(keep)
         ]
         if self.w_grid.contents:
             self.w_grid.focus_position = 0
@@ -39,17 +38,17 @@ class Grid(urwid.Filler):
             key = 'right'
         elif key == 'c':
             note = self.application.keep.createNote()
-            w_edit = widget.edit.Edit(self.application, note)
+            w_edit = edit.Edit(self.application, note)
             self.application.push(w_edit)
             key = None
         elif key == 'C':
             note = self.application.keep.createList()
-            w_edit = widget.edit.Edit(self.application, note)
+            w_edit = edit.Edit(self.application, note)
             self.application.push(w_edit)
             key = None
         elif key == 'enter':
             if self.w_grid.focus is not None:
-                w_edit = widget.edit.Edit(self.application, self.w_grid.focus.note)
+                w_edit = edit.Edit(self.application, self.w_grid.focus.note)
                 self.application.push(w_edit)
             key = None
         if self.w_grid.focus is not None:

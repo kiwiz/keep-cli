@@ -1,8 +1,9 @@
 import urwid
-import constants
 import gkeepapi
-import query
-import widget.note
+from . import note
+from .. import query
+from .. import constants
+
 from typing import List
 
 class NoteList(urwid.Frame):
@@ -17,7 +18,7 @@ class NoteList(urwid.Frame):
 
     def refresh(self, keep: gkeepapi.Keep):
         self.w_list.body[:] = [
-            urwid.BoxAdapter(widget.note.Note(n), 10) for n in self.query.filter(keep)
+            urwid.BoxAdapter(note.Note(n), 10) for n in self.query.filter(keep)
         ]
 
 class KanBan(urwid.Columns):

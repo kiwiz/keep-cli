@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import urwid
-import widget.util
+from . import util
 
 from typing import Union
 
@@ -36,7 +36,7 @@ class Line(urwid.Columns):
             urwid.Text(', '.join(key) if isinstance(key, tuple) else key),
         ], dividechars=1)
 
-class Help(widget.util.Border):
+class Help(util.Border):
     def __init__(self, app: 'application.Application'):
         self.application = app
 

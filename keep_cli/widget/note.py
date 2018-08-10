@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import urwid
-import constants
 import gkeepapi
-import widget.labels
+from . import labels
+from .. import constants
 import logging
 
 class Note(urwid.AttrMap):
@@ -13,7 +13,7 @@ class Note(urwid.AttrMap):
 
         self.w_title = urwid.Text(u'', wrap=urwid.CLIP)
         self.w_text = urwid.Text(u'')
-        self.w_labels = widget.labels.Labels()
+        self.w_labels = labels.Labels()
 
         self.w_state = urwid.Text(u'', align=urwid.RIGHT)
         self.w_header = urwid.AttrMap(self.w_state, None)

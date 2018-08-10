@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import urwid
 import urwid_readline
-import constants
 import gkeepapi
-import widget.labels
+from . import labels
+from .. import constants
 import logging
 
 from typing import List
@@ -153,7 +153,7 @@ class Edit(urwid.AttrMap):
         self.w_title = urwid_readline.ReadlineEdit(wrap=urwid.CLIP)
         self.w_text = urwid_readline.ReadlineEdit(multiline=True)
         self.w_list = Items()
-        self.w_labels = widget.labels.Labels()
+        self.w_labels = labels.Labels()
 
         self.w_state = urwid.Text(u'', align=urwid.RIGHT)
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
@@ -190,7 +190,7 @@ class Edit(urwid.AttrMap):
 
         w_body = None
         if isinstance(self.note, gkeepapi.node.List):
-            self.w_list.refresh(self.note.children)
+            self.w_list.refresh(self.note.items)
             w_body = (self.w_list, self.w_content.options())
         else:
             self.w_text.set_edit_text(self.note.text)
