@@ -261,19 +261,22 @@ class Edit(urwid.AttrMap):
                 self.note.text = text
             return
 
-        old_items = {item.id: item for item in self.note.items}
-        for item in self.note.items:
-            self.note.remove(item)
+        old_items = set((item.id for item in self.note.items))
 
         for i, w_item in enumerate(self.w_list.body):
             item = gkeepapi.node.ListItem(parent_id=self.note.id)
             if w_item.id in old_items:
-                item = old_items[w_item.id]
+                item = self.note.get(w_item.id)
+                old_items.remove(w_item.id)
 
             if item.checked != w_item.checked:
                 item.checked = w_item.checked
-            item.text = w_item.getText()
-            self.note.append(item)
+            text = w_item.getText()
+            if item.text != text:
+                item.text = text
+
+            if item.new:
+                self.note.append(item)
 
             curr = None
             prev = item.super_list_item_id
@@ -286,6 +289,9 @@ class Edit(urwid.AttrMap):
 
                 if curr is not None:
                     self.note.get(curr).indent(item)
+
+        for id_ in old_items:
+            self.note.get(id_).delete()
 
     def keypress(self, size, key):
         key = super(Edit, self).keypress(size, key)
