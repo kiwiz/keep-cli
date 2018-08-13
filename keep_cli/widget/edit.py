@@ -245,7 +245,7 @@ class Edit(urwid.AttrMap):
     def _updateState(self):
         parts = [
             '🔄' if self.note.dirty else '  ',
-            '🗃' if self.note.archived else '  ',
+            '📦' if self.note.archived else '  ',
             '📍' if self.note.pinned else '  ',
         ]
         self.w_state.set_text(''.join(parts))
@@ -285,7 +285,7 @@ class Edit(urwid.AttrMap):
 
             if prev != curr:
                 if prev is not None:
-                    old_items[prev].dedent(item)
+                    self.note.get(prev).dedent(item)
 
                 if curr is not None:
                     self.note.get(curr).indent(item)
@@ -308,3 +308,6 @@ class Edit(urwid.AttrMap):
             self.application.pop()
             key = None
         return key
+
+    def refresh(self, keep: gkeepapi.Keep):
+        pass

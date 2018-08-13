@@ -39,6 +39,7 @@ class Application(urwid.Frame):
         """
         self.stack.append(w)
         self.body = w
+        self.body.refresh(self.keep)
 
     def pop(self):
         """
@@ -55,8 +56,8 @@ class Application(urwid.Frame):
         """
         Replace the active widget on the rendering stack
         """
-        self.pop()
-        self.push(w)
+        self.body = self.stack[-1] = w
+        self.body.refresh(self.keep)
 
     def overlay(self, w: urwid.Widget=None):
         self.w_overlay = w

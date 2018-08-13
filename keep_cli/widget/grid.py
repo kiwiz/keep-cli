@@ -21,8 +21,6 @@ class Grid(urwid.Filler):
         self.w_grid.contents = [
             (urwid.BoxAdapter(note.Note(n), self.size[1]), self.w_grid.options()) for n in self.query.filter(keep)
         ]
-        if self.w_grid.contents:
-            self.w_grid.focus_position = 0
 
     def selectable(self):
         return True

@@ -65,7 +65,7 @@ class Note(urwid.AttrMap):
     def _updateState(self):
         parts = [
             '🔄' if self.note.dirty else '  ',
-            '🗃' if self.note.archived else '  ',
+            '📦' if self.note.archived else '  ',
             '📍' if self.note.pinned else '  ',
         ]
         self.w_state.set_text(''.join(parts))

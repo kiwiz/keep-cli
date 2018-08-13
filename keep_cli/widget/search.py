@@ -5,6 +5,8 @@ import logging
 from . import labels
 from . import edit
 from . import util
+from . import grid
+from .. import query
 from .. import constants
 
 from typing import List
@@ -13,8 +15,8 @@ class Search(util.Border):
     def __init__(self, app: 'application.Application'):
         self.application = app
 
-        self.w_pinned = urwid.CheckBox('Pinned', state=False, has_mixed=True)
-        self.w_archived = urwid.CheckBox('Archived', state='mixed', has_mixed=True)
+        self.w_pinned = urwid.CheckBox('Pinned', state='mixed', has_mixed=True)
+        self.w_archived = urwid.CheckBox('Archived', state=False, has_mixed=True)
         self.w_trashed = urwid.CheckBox('Trashed', state=False, has_mixed=True)
 
         self.w_note = urwid.CheckBox('Note', state=True)
@@ -52,8 +54,36 @@ class Search(util.Border):
             urwid.Divider(),
 
             urwid.Text(('bTEXT', 'Colors')),
-            self.w_colors
+            self.w_colors,
+
+            urwid.Divider(),
+
+            urwid.Columns([
+                urwid.Button('Apply', lambda x: self.onSearch()),
+                urwid.Button('Cancel', lambda x: self.onCancel()),
+            ], dividechars=1)
         ]))
+
+    def onSearch(self):
+        q = query.Query(
+            labels=None,
+            colors=None,
+            pinned=self._getCheckboxValue(self.w_pinned),
+            archived=self._getCheckboxValue(self.w_archived),
+            trashed=self._getCheckboxValue(self.w_trashed)
+        )
+
+        self.application.replace(grid.Grid(self.application, q))
+        self.application.overlay(None)
+
+    def onCancel(self):
+        self.application.overlay(None)
+
+    def _getCheckboxValue(self, checkbox):
+        state = checkbox.get_state()
+        if isinstance(state, bool):
+            return state
+        return None
 
     def keypress(self, size, key):
         key = super(Search, self).keypress(size, key)
