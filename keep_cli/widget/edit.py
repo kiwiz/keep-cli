@@ -264,7 +264,7 @@ class Edit(urwid.AttrMap):
         old_items = set((item.id for item in self.note.items))
 
         for i, w_item in enumerate(self.w_list.body):
-            item = gkeepapi.node.ListItem(parent_id=self.note.id)
+            item = gkeepapi.node.ListItem(id_=w_item.id, parent_id=self.note.id)
             if w_item.id in old_items:
                 item = self.note.get(w_item.id)
                 old_items.remove(w_item.id)
