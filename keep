@@ -53,13 +53,8 @@ logged_in = args.offline
 token = keyring.get_password('google-keep-token', config['username'])
 if not logged_in and token:
     logger.info('Authenticating with token')
-    auth = gkeepapi.APIAuth(gkeepapi.Keep.OAUTH_SCOPES)
-    auth._email = config['username']
-    auth._android_id = get_mac()
-    auth.setMasterToken(token)
-    auth.refresh()
     try:
-        keep.load(auth, sync=False)
+        keep.resume(config['username'], token, sync=False)
         logged_in = True
         logger.info('Success')
     except gkeepapi.exception.LoginException:
@@ -68,10 +63,10 @@ if not logged_in and token:
 if not logged_in:
     password = getpass.getpass()
     try:
-        keep.login(config['username'], password)
+        keep.login(config['username'], password, sync=False)
         logged_in = True
         del password
-        token = keep._keep_api._auth.getMasterToken()
+        token = keep.getMasterToken()
         keyring.set_password('google-keep-token', config['username'], token)
         logger.info('Success')
     except gkeepapi.exception.LoginException:
