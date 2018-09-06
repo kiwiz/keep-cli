@@ -6,9 +6,8 @@ import yaml
 import keyring
 import getpass
 import gkeepapi
-import urwid
 import logging
-from keep_cli import application, constants
+from keep_cli import application
 from uuid import getnode as get_mac
 
 logger = logging.getLogger('keep-cli')
@@ -77,9 +76,4 @@ if not logged_in:
     sys.exit(1)
 
 app = application.Application(keep, config, config_dir, args.offline)
-loop = urwid.MainLoop(app, constants.Palette)
-loop.screen.set_terminal_properties(colors=256)
-try:
-    loop.run()
-except KeyboardInterrupt:
-    pass
+app.run()

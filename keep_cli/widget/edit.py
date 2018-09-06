@@ -192,22 +192,25 @@ class Edit(urwid.AttrMap):
         self.w_state = urwid.Text(u'', align=urwid.RIGHT)
         self.w_footer = urwid.Text(u'', align=urwid.RIGHT)
         self.w_content = urwid.Frame(
-            self.w_list,
+            tmp,
             header=tmp,
             footer=tmp
         )
+        self.w_frame = urwid.Frame(
+            urwid.Padding(
+                self.w_content,
+                align=urwid.CENTER,
+                left=1,
+                right=1
+            ),
+            header=self.w_state,
+            footer=self.w_footer,
+        )
+
+        self.zen_mode = False
 
         super(Edit, self).__init__(
-            urwid.Frame(
-                urwid.Padding(
-                    self.w_content,
-                    align=urwid.CENTER,
-                    left=1,
-                    right=1
-                ),
-                header=self.w_state,
-                footer=self.w_footer,
-            ),
+            self.w_frame,
             note.color.value
         )
 
@@ -249,6 +252,12 @@ class Edit(urwid.AttrMap):
             '📍' if self.note.pinned else '  ',
         ]
         self.w_state.set_text(''.join(parts))
+
+    def _updateMode(self):
+        self.original_widget = self.w_content.contents['body'][0] \
+            if self.zen_mode \
+            else self.w_frame
+        self._invalidate()
 
     def _save(self):
         title = self.w_title.get_edit_text()
@@ -303,6 +312,9 @@ class Edit(urwid.AttrMap):
             self.note.archived = not self.note.archived
             self._updateState()
             key = None
+        elif key == 'meta z':
+            self.zen_mode = not self.zen_mode
+            self._updateMode()
         elif key == 'esc':
             self._save()
             self.application.pop()

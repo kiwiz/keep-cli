@@ -10,6 +10,7 @@ from .widget import search
 from .widget import views
 from .widget import help
 from . import query
+from . import constants
 
 class Application(urwid.Frame):
     """
@@ -151,3 +152,18 @@ class Application(urwid.Frame):
         raw_query = view.get('query') or {}
         q = query.Query.fromConfig(self.keep, raw_query)
         return grid.Grid(self, q)
+
+    def run(self):
+        loop = urwid.MainLoop(self, constants.Palette)
+        loop.screen.set_terminal_properties(colors=256)
+
+        while True:
+            try:
+                loop.run()
+            except KeyboardInterrupt:
+                if loop.process_input('\x03'):
+                    continue
+
+                loop.stop()
+                break
+

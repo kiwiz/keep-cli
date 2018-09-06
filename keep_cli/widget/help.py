@@ -21,12 +21,14 @@ docs = [
     ('e', 'Archive note'),
 
     'Editor',
-    ('meta + ] / [', 'Indent/Dedent list item'),
-    ('meta + n / p', 'Move list item to next/previous position'),
-    ('meta + x', 'Check/Uncheck list item'),
+    ('Meta + ] / [', 'Indent/Dedent list item'),
+    ('Meta + n / p', 'Move list item to next/previous position'),
+    ('Meta + x', 'Check/Uncheck list item'),
+    ('Meta + z', 'Enable/Disable zen mode'),
 
     'Misc',
     ('?', 'Open keyboard shortcut help'),
+    ('Ctrl + c', 'Discard changes / Quit'),
     ('Esc', 'Finish editing / Quit'),
 ]
 
