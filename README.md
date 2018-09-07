@@ -22,9 +22,16 @@ $ ./keep
 Todo
 ----
 
-There are still many missing features! Short (incomplete) list of features to add:
+There are still many missing/incomplete features:
 
-- Search form
-    - Add support for color-selection
-    - Add support for label-selection
-    - Save queries
+- Search
+    - Searching by color
+    - Searching by label
+    - Saving a search
+- Views
+    - View management (Edit/Delete)
+    - Kanban view
+- Scrolling support
+- Editing
+    - Label management (Add/Remove)
+    - Color picker
