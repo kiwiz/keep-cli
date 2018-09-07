@@ -315,6 +315,10 @@ class Edit(urwid.AttrMap):
         elif key == 'meta z':
             self.zen_mode = not self.zen_mode
             self._updateMode()
+            key = None
+        elif key == 'ctrl c':
+            self.application.pop()
+            key = None
         elif key == 'esc':
             self._save()
             self.application.pop()

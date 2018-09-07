@@ -161,9 +161,9 @@ class Application(urwid.Frame):
             try:
                 loop.run()
             except KeyboardInterrupt:
-                if loop.process_input('\x03'):
+                if loop.process_input(['ctrl c']):
                     continue
-
                 loop.stop()
-                break
+
+            break
 
