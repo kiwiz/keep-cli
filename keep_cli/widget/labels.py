@@ -5,14 +5,29 @@ import logging
 
 from typing import List
 
-class Label(urwid.Text):
-    def __init__(self, label: gkeepapi.node.Label, color: gkeepapi.node.ColorValue):
-        super(Label, self).__init__(('l' + color.value, label.name))
+class Label(urwid.AttrMap):
+    def __init__(self, label: gkeepapi.node.Label, color: gkeepapi.node.ColorValue, selected=False):
+        self.color = color
+        self.selected = selected
+
+        super(Label, self).__init__(
+            urwid.Text(label.name),
+            'l' + color.value,
+            'lu' + color.value,
+        )
+
+    def update(self):
+        self.set_attr_map({None: ('lb' if self.selected else 'l') + self.color.value})
+        self.set_focus_map({None: ('lub' if self.selected else 'lu') + self.color.value})
 
     def selectable(self):
         return True
 
     def keypress(self, size, key):
+        if key == ' ':
+            self.selected = not self.selected
+            self.update()
+            key = None
         return key
 
 class Labels(urwid.Columns):

@@ -45,12 +45,18 @@ for k, v in ColorMap.items():
     Palette.append((k.value, 'black', v[0], '', TextColor[1], v[1]))
 
     # Bold variant
-    Palette.append(('b' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'underline', 'bold']), v[1]))
+    Palette.append(('b' + k.value, 'black', v[0], '', _(TextColor[1], 'underline', 'bold'), v[1]))
     # Italicized variant
-    Palette.append(('i' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'italics']), v[1]))
+    Palette.append(('i' + k.value, 'black', v[0], '', _(TextColor[1], 'italics'), v[1]))
     # Label variant
-    Palette.append(('l' + k.value, 'black', v[0], '', ','.join([TextColor[1], 'standout']), v[1]))
+    Palette.append(('l' + k.value, 'black', v[0], '', _(TextColor[1], 'standout'), v[1]))
+    # Underlined label variant
+    Palette.append(('lu' + k.value, 'black', v[0], '', _(TextColor[1], 'underline', 'standout'), v[1]))
+    # Bold label variant
+    Palette.append(('lb' + k.value, 'black', v[0], '', _(TextColor[1], 'standout', 'bold'), v[1]))
+    # Underlined bold label variant
+    Palette.append(('lub' + k.value, 'black', v[0], '', _(TextColor[1], 'underline', 'standout', 'bold'), v[1]))
     # Color variant
     Palette.append(('c' + k.value, v[0], v[0], '', TextColor[1], v[1]))
-    # Color variant
-    Palette.append(('cm' + k.value, v[0], v[0], '', MutedColor[1], v[1]))
+    # Underlined color variant
+    Palette.append(('cu' + k.value, v[0], v[0], '', _(TextColor[1], 'underline'), v[1]))

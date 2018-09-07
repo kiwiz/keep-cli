@@ -11,19 +11,27 @@ from typing import List
 NEXT_SELECTABLE = 'next selectable'
 PREV_SELECTABLE = 'prev selectable'
 
-class Color(urwid.Text):
-    def __init__(self, color: gkeepapi.node.ColorValue, selected=False):
+class Color(urwid.AttrMap):
+    def __init__(self, color: gkeepapi.node.ColorValue, checked=False):
         self.color = color
-        super(Color, self).__init__('')
-        self.update(False)
+        super(Color, self).__init__(
+            urwid.Text(''),
+            'c' + self.color.value,
+            'cu' + self.color.value
+        )
+        self.checked = checked
+        self.update()
 
     def keypress(self, size, key):
-        self.update(key == ' ')
+        if key == ' ':
+            self.checked = not self.checked
+            self.update()
+            key = None
+
         return key
 
-    def update(self, selected):
-        attr = ('c' if selected else 'cm') + self.color.value
-        self.set_text((attr, ' ✔ '))
+    def update(self):
+        self.original_widget.set_text(' ✔ ' if self.checked else '   ')
 
     def selectable(self):
         return True
