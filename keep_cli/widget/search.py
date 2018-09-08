@@ -66,8 +66,8 @@ class Search(util.Border):
 
     def onSearch(self):
         q = query.Query(
-            labels=None,
-            colors=None,
+            labels=self.w_labels.getSelected() or None,
+            colors=self.w_colors.getSelected() or None,
             pinned=self._getCheckboxValue(self.w_pinned),
             archived=self._getCheckboxValue(self.w_archived),
             trashed=self._getCheckboxValue(self.w_trashed)

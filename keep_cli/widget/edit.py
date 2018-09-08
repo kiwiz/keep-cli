@@ -12,26 +12,26 @@ NEXT_SELECTABLE = 'next selectable'
 PREV_SELECTABLE = 'prev selectable'
 
 class Color(urwid.AttrMap):
-    def __init__(self, color: gkeepapi.node.ColorValue, checked=False):
+    def __init__(self, color: gkeepapi.node.ColorValue, selected=False):
         self.color = color
         super(Color, self).__init__(
             urwid.Text(''),
             'c' + self.color.value,
             'cu' + self.color.value
         )
-        self.checked = checked
+        self.selected = selected
         self.update()
 
     def keypress(self, size, key):
         if key == ' ':
-            self.checked = not self.checked
+            self.selected = not self.selected
             self.update()
             key = None
 
         return key
 
     def update(self):
-        self.original_widget.set_text(' ✔ ' if self.checked else '   ')
+        self.original_widget.set_text(' ✔ ' if self.selected else '   ')
 
     def selectable(self):
         return True
@@ -41,6 +41,9 @@ class Colors(urwid.GridFlow):
         super(Colors, self).__init__([
             Color(color) for color in gkeepapi.node.ColorValue
         ], 3, 1, 0, urwid.LEFT)
+
+    def getSelected(self) -> List[gkeepapi.node.ColorValue]:
+        return [item.color for item, _ in self.contents if item.selected]
 
 class Item(urwid.Columns):
     def __init__(self, item: gkeepapi.node.ListItem, indented=None):

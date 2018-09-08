@@ -25,8 +25,6 @@ Todo
 There are still many missing/incomplete features:
 
 - Search
-    - Searching by color
-    - Searching by label
     - Saving a search
 - Views
     - View management (Edit/Delete)

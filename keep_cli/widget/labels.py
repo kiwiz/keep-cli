@@ -7,6 +7,7 @@ from typing import List
 
 class Label(urwid.AttrMap):
     def __init__(self, label: gkeepapi.node.Label, color: gkeepapi.node.ColorValue, selected=False):
+        self.label = label
         self.color = color
         self.selected = selected
 
@@ -38,3 +39,7 @@ class Labels(urwid.Columns):
         self.contents = [
             (Label(label, color), self.options(urwid.PACK)) for label in labels
         ]
+
+    def getSelected(self) -> List[gkeepapi.node.Label]:
+        return [item.label for item, _ in self.contents if item.selected]
+
