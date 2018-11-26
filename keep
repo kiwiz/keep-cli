@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+import re
 import argparse
 import getpass
 import json
@@ -20,6 +21,20 @@ logger.addHandler(ch)
 def path_type(path: str):
     return os.path.expanduser(path)
 
+def re_type(exp: str):
+    try:
+        return re.compile(exp)
+    except re.error as e:
+        raise argparse.ArgumentTypeError(e.msg)
+
+def bool_type(b: str):
+    if b.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif b.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected')
+
 parser = argparse.ArgumentParser('Keep-CLI')
 parser.add_argument('--config-dir', type=path_type, default='~/.keep', help='Configuration directory')
 parser.add_argument('--offline', action='store_true', help='Offline mode')
@@ -29,19 +44,19 @@ parent_note_parser = argparse.ArgumentParser(add_help=False)
 parent_note_parser.add_argument('--note', help='Note id', required=True)
 
 parent_sync_parser = argparse.ArgumentParser(add_help=False)
-parent_sync_parser.add_argument('--sync', help='Sync down notes', required=True)
+parent_sync_parser.add_argument('--sync', action='store_true', help='Sync down notes')
 
 tui_parser = subparsers.add_parser('tui', help='TUI interface')
 tui_parser.add_argument('--note', help='Note id')
 tui_parser.set_defaults(func=commands.tui)
 
 find_parser = subparsers.add_parser('find', help='Find all matching notes', parents=[parent_sync_parser])
-find_parser.add_argument('--query', type=str, help='Regular expression match on title & text')
+find_parser.add_argument('--query', type=re_type, help='Regular expression match on title & text')
 find_parser.add_argument('--colors', type=str, nargs='*', help='List of colors to match. Comma separated')
 find_parser.add_argument('--labels', type=str, nargs='*', help='List of labels to match. Comma separated')
-find_parser.add_argument('--pinned', type=bool, help='Pinned status to match')
-find_parser.add_argument('--archived', type=bool, help='Archived status to match')
-find_parser.add_argument('--trashed', type=bool, help='Trashed status to match')
+find_parser.add_argument('--pinned', type=bool_type, help='Pinned status to match')
+find_parser.add_argument('--archived', type=bool_type, help='Archived status to match')
+find_parser.add_argument('--trashed', type=bool_type, help='Trashed status to match')
 find_parser.set_defaults(func=commands.find)
 
 sync_parser = subparsers.add_parser('sync', help='Sync local state')
