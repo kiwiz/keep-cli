@@ -26,8 +26,6 @@ class Application(urwid.Frame):
 
         self.w_status = status.Status(self)
 
-        self.load()
-
         w_main = self.hydrateView('default')
         self.stack.append(w_main)
 
@@ -108,25 +106,6 @@ class Application(urwid.Frame):
             else:
                 self.pop()
         return key
-
-    def load(self):
-        username = self.config.get('username', 'user')
-        cache_file = os.path.join(self.config_dir, '%s.json' % username)
-
-        try:
-            fh = open(cache_file, 'r')
-        except FileNotFoundError:
-            logging.warn('Unable to find state file: %s', cache_file)
-            return
-
-        try:
-            state = json.load(fh)
-        except json.decoder.JSONDecodeError:
-            logging.warn('Unable to load state file: %s', cache_file)
-            return
-
-        fh.close()
-        self.keep.restore(state)
 
     def save(self):
         username = self.config.get('username', 'user')

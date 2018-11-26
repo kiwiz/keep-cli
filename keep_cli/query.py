@@ -4,7 +4,7 @@ import gkeepapi
 import typing
 from typing import List, Optional, Union
 
-logger = logging.getLogger('keep-cli')
+logger = logging.getLogger(__name__)
 
 class Query(object):
     @classmethod
@@ -28,7 +28,7 @@ class Query(object):
                     l = keep.findLabel(i)
                     labels.append(l)
                     if l is None:
-                        logger.warn('Label not found: %s', i)
+                        logger.warning('Label not found: %s', i)
             config['labels'] = labels
 
         if 'colors' in config:
@@ -39,7 +39,7 @@ class Query(object):
                     c = gkeepapi.node.ColorValue(i.upper())
                     colors.append(c)
                 except ValueError:
-                    logger.warn('Color not found: %s', i)
+                    logger.warning('Color not found: %s', i)
             config['colors'] = colors
 
         return cls(name, query, labels, colors, pinned, archived, trashed)
