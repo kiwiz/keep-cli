@@ -10,6 +10,7 @@ import yaml
 import keyring
 import gkeepapi
 from keep_cli import commands
+from keep_cli import util
 
 logger = logging.getLogger('keep-cli')
 logger.setLevel(logging.INFO)
@@ -41,16 +42,13 @@ parser.add_argument('--offline', action='store_true', help='Offline mode')
 subparsers = parser.add_subparsers(help='Command', dest='command')
 
 parent_note_parser = argparse.ArgumentParser(add_help=False)
-parent_note_parser.add_argument('--note', help='Note id', required=True)
-
-parent_sync_parser = argparse.ArgumentParser(add_help=False)
-parent_sync_parser.add_argument('--sync', action='store_true', help='Sync down notes')
+parent_note_parser.add_argument('--note', type=str, help='Note id', required=True)
 
 tui_parser = subparsers.add_parser('tui', help='TUI interface')
-tui_parser.add_argument('--note', help='Note id')
+tui_parser.add_argument('--note', type=str, help='Note id')
 tui_parser.set_defaults(func=commands.tui)
 
-find_parser = subparsers.add_parser('find', help='Find all matching notes', parents=[parent_sync_parser])
+find_parser = subparsers.add_parser('find', help='Find all matching notes')
 find_parser.add_argument('--query', type=re_type, help='Regular expression match on title & text')
 find_parser.add_argument('--colors', type=str, nargs='*', help='List of colors to match. Comma separated')
 find_parser.add_argument('--labels', type=str, nargs='*', help='List of labels to match. Comma separated')
@@ -59,10 +57,7 @@ find_parser.add_argument('--archived', type=bool_type, help='Archived status to 
 find_parser.add_argument('--trashed', type=bool_type, help='Trashed status to match')
 find_parser.set_defaults(func=commands.find)
 
-sync_parser = subparsers.add_parser('sync', help='Sync local state')
-sync_parser.set_defaults(func=commands.sync)
-
-get_parser = subparsers.add_parser('get', help='Get data on a note', parents=[parent_note_parser, parent_sync_parser])
+get_parser = subparsers.add_parser('get', help='Get data on a note', parents=[parent_note_parser])
 get_parser.add_argument('--title', action='store_true', help='Display title of a note')
 get_parser.add_argument('--text', action='store_true', help='Display body of a note')
 get_parser.add_argument('--checked', action='store_true', help='Display list checked items on a list')
@@ -70,7 +65,9 @@ get_parser.add_argument('--unchecked', action='store_true', help='Display unchec
 get_parser.add_argument('--labels', action='store_true', help='Display labels on a note')
 get_parser.set_defaults(func=commands.get)
 
-set_parser = subparsers.add_parser('set', help='Set data on a note', parents=[parent_note_parser, parent_sync_parser])
+set_parser = subparsers.add_parser('set', help='Set data on a note', parents=[parent_note_parser])
+set_parser.add_argument('--title', type=str, help='Set title of a note')
+set_parser.add_argument('--text', type=str, help='Set body of a note')
 set_parser.set_defaults(func=commands.set)
 
 args = parser.parse_args()
@@ -98,26 +95,18 @@ else:
 
 keep = gkeepapi.Keep()
 
-logged_in = args.offline
+logged_in = False
+
+if args.offline:
+    logger.info('Offline mode')
+    state = util.load(args.config_dir, config['username'])
+    keep.load(None, state, False)
+    logged_in = True
 
 token = keyring.get_password('google-keep-token', config['username'])
 if not logged_in and token:
     logger.info('Authenticating with token')
-
-    username = config.get('username', 'user')
-    cache_file = os.path.join(args.config_dir, '%s.json' % username)
-    state = None
-
-    try:
-        fh = open(cache_file, 'r')
-
-        try:
-            state = json.load(fh)
-        except json.decoder.JSONDecodeError:
-            logging.warning('Unable to load state file: %s', cache_file)
-        fh.close()
-    except FileNotFoundError:
-        logging.warning('Unable to find state file: %s', cache_file)
+    state = util.load(args.config_dir, config['username'])
 
     try:
         keep.resume(config['username'], token, state=state, sync=False)

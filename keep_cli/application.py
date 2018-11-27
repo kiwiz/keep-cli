@@ -1,4 +1,3 @@
-import os
 import urwid
 import logging
 import json
@@ -11,6 +10,7 @@ from .widget import views
 from .widget import help
 from . import query
 from . import constants
+from . import util
 
 class Application(urwid.Frame):
     """
@@ -77,7 +77,7 @@ class Application(urwid.Frame):
         """
         if not self.offline:
             self.keep.sync()
-        self.save()
+        util.save(self.keep, self.config_dir, self.config['username'])
         self.body.refresh(self.keep)
 
     def keypress(self, size, key):
@@ -106,15 +106,6 @@ class Application(urwid.Frame):
             else:
                 self.pop()
         return key
-
-    def save(self):
-        username = self.config.get('username', 'user')
-        cache_file = os.path.join(self.config_dir, '%s.json' % username)
-
-        state = self.keep.dump()
-        fh = open(cache_file, 'w')
-        json.dump(state, fh)
-        fh.close()
 
     def hydrateView(self, key: str) -> query.Query:
         views = self.config.get('views') or {}
