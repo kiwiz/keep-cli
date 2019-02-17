@@ -48,10 +48,11 @@ def get(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
 
     if none or args.text:
         if isinstance(note, gkeepapi.node.List):
+            none_completion = not (args.unchecked or args.checked)
             entries = []
-            if none or args.unchecked:
+            if none_completion or args.unchecked:
                 entries += note.unchecked
-            if none or args.checked:
+            if none_completion or args.checked:
                 entries += note.checked
             for entry in entries:
                 print(entry)
