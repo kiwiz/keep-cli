@@ -19,6 +19,19 @@ Running
 $ ./keep
 ```
 
+Features
+--------
+
+The CLI allows:
+
+- [x] Adding a note (basic)
+- [x] Searching a note (basic)
+- [x] Modifying an existent note (basic)
+
+The TUI allows:
+
+**TBC**
+
 Todo
 ----
 

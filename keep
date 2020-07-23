@@ -70,6 +70,11 @@ set_parser.add_argument('--title', type=str, help='Set title of a note')
 set_parser.add_argument('--text', type=str, help='Set body of a note')
 set_parser.set_defaults(func=commands.set)
 
+add_parser = subparsers.add_parser('add', help='Add a new note')
+add_parser.add_argument('--title', type=str, help='The title of the note')
+add_parser.add_argument('--text', type=str, help='The body of the note')
+add_parser.set_defaults(func=commands.add)
+
 args = parser.parse_args()
 
 if not os.path.isdir(args.config_dir):
