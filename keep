@@ -70,6 +70,11 @@ set_parser.add_argument('--title', type=str, help='Set title of a note')
 set_parser.add_argument('--text', type=str, help='Set body of a note')
 set_parser.set_defaults(func=commands.set)
 
+add_parser = subparsers.add_parser('add', help='Add a new note')
+add_parser.add_argument('--title', type=str, help='The title of the note')
+add_parser.add_argument('--text', type=str, help='The body of the note')
+add_parser.set_defaults(func=commands.add)
+
 args = parser.parse_args()
 
 if not os.path.isdir(args.config_dir):
@@ -124,12 +129,20 @@ if not logged_in:
         token = keep.getMasterToken()
         keyring.set_password('google-keep-token', config['username'], token)
         logger.info('Success')
-    except gkeepapi.exception.LoginException:
-        logger.info('Login failed')
+    except gkeepapi.exception.LoginException as err:
+        logger.error('Login failed') 
+        logger.error('Ensure you have:')
+        logger.error('- entered correctly your password for the account: ' + config['username'])
+        logger.error('- allowed less secured apps at: https://myaccount.google.com/lesssecureapps?pli=0 (*)')
+        logger.error('- unlocked the account via captcha: https://accounts.google.com/b/0/DisplayUnlockCaptcha (*)')
+        logger.error('')
+        logger.error('(*) where 0 is your Google account id, may be different if multiple logins, adapt it')
+        raise err
 
-if not logged_in:
-    logger.error('Failed to authenticate')
-    sys.exit(1)
 
 
-args.func(args, keep, config)
+try:
+    func = args.func
+except AttributeError:
+    parser.error("Invalid arguments!")
+func(args, keep, config)
