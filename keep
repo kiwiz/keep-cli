@@ -91,6 +91,10 @@ set_parser.add_argument("--title", type=str, help="Set title of a note")
 set_parser.add_argument("--text", type=str, help="Set body of a note")
 set_parser.set_defaults(func=commands.set)
 
+sync_parser = subparsers.add_parser("sync", help="Manually sync keep notes")
+sync_parser.set_defaults(func=commands.sync)
+
+
 args = parser.parse_args()
 
 if not os.path.isdir(args.config_dir):
@@ -104,7 +108,12 @@ if os.path.isfile(config_file):
 else:
     config = {
         "username": input("Username: "),
-        "views": {"default": {"name": "Default", "type": "grid",},},
+        "views": {
+            "default": {
+                "name": "Default",
+                "type": "grid",
+            },
+        },
     }
     with open(config_file, "w") as fh:
         yaml.dump(config, fh, default_flow_style=False)

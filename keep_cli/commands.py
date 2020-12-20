@@ -83,3 +83,7 @@ def set(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
         note.text = args.text
 
     _sync(args, keep, config, True)
+
+
+def sync(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
+    _sync(argparse.Namespace(offline=False), keep, config, True)
