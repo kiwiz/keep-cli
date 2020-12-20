@@ -6,10 +6,10 @@ from typing import Union
 
 docs = [
     'Navigation',
-    (('up', 'k'), 'Navigate up'),
-    (('down', 'j'), 'Navigate down'),
-    (('left', 'h'), 'Navigate left'),
-    (('right', 'l'), 'Navigate right'),
+    (('k', 'up'), 'Navigate up'),
+    (('j', 'down'), 'Navigate down'),
+    (('h', 'left'), 'Navigate left'),
+    (('l', 'right'), 'Navigate right'),
     ('/', 'Search notes'),
 
     'Action',

@@ -12,11 +12,15 @@ from . import query
 from . import constants
 from . import util
 
+
 class Application(urwid.Frame):
     """
     Base application widget
     """
-    def __init__(self, keep: gkeepapi.Keep, config: dict, config_dir: str, offline: bool=False):
+
+    def __init__(
+        self, keep: gkeepapi.Keep, config: dict, config_dir: str, offline: bool = False
+    ):
         self.keep = keep
         self.config = config
         self.config_dir = config_dir
@@ -26,7 +30,7 @@ class Application(urwid.Frame):
 
         self.w_status = status.Status(self)
 
-        w_main = self.hydrateView('default')
+        w_main = self.hydrateView("default")
         self.stack.append(w_main)
 
         super(Application, self).__init__(w_main, footer=self.w_status)
@@ -58,7 +62,7 @@ class Application(urwid.Frame):
         self.body = self.stack[-1] = w
         self.body.refresh(self.keep)
 
-    def overlay(self, w: urwid.Widget=None):
+    def overlay(self, w: urwid.Widget = None):
         self.w_overlay = w
         w_top = self.stack[-1]
 
@@ -66,9 +70,7 @@ class Application(urwid.Frame):
             self.body = w_top
         else:
             self.body = urwid.Overlay(
-                w, w_top,
-                urwid.CENTER, (urwid.RELATIVE, 80),
-                urwid.MIDDLE, urwid.PACK
+                w, w_top, urwid.CENTER, (urwid.RELATIVE, 80), urwid.MIDDLE, urwid.PACK
             )
 
     def refresh(self):
@@ -77,7 +79,7 @@ class Application(urwid.Frame):
         """
         if not self.offline:
             self.keep.sync()
-        util.save(self.keep, self.config_dir, self.config['username'])
+        util.save(self.keep, self.config_dir, self.config["username"])
         self.body.refresh(self.keep)
 
     def keypress(self, size, key):
@@ -85,19 +87,19 @@ class Application(urwid.Frame):
         Handle global keypresses
         """
         key = super(Application, self).keypress(size, key)
-        if key == 'r':
+        if key == "r":
             self.refresh()
             key = None
-        elif key == '/':
+        elif key == "/":
             self.overlay(search.Search(self))
             key = None
-        elif key == '?':
+        elif key == "?":
             self.overlay(help.Help(self))
             key = None
-        elif key == 'g':
+        elif key == "g":
             self.overlay(views.Views(self))
             key = None
-        elif key == 'esc':
+        elif key == "esc":
             if self.w_overlay is not None:
                 self.overlay(None)
             elif len(self.stack) <= 1:
@@ -108,18 +110,21 @@ class Application(urwid.Frame):
         return key
 
     def hydrateView(self, key: str) -> query.Query:
-        views = self.config.get('views') or {}
+        views = self.config.get("views") or {}
         view = views.get(key) or {}
-        _type = view.get('type', 'grid')
+        _type = view.get("type", "grid")
 
-        if _type == 'kanban':
-            raw_queries = view.get('queries') or []
+        if _type == "kanban":
+            raw_queries = view.get("queries") or []
             return kanban.KanBan(
                 self,
-                [query.Query.fromConfig(self.keep, raw_query) for raw_query in raw_queries]
+                [
+                    query.Query.fromConfig(self.keep, raw_query)
+                    for raw_query in raw_queries
+                ],
             )
 
-        raw_query = view.get('query') or {}
+        raw_query = view.get("query") or {}
         q = query.Query.fromConfig(self.keep, raw_query)
         return grid.Grid(self, q)
 
@@ -131,9 +136,8 @@ class Application(urwid.Frame):
             try:
                 loop.run()
             except KeyboardInterrupt:
-                if loop.process_input(['ctrl c']):
+                if loop.process_input(["ctrl c"]):
                     continue
                 loop.stop()
 
             break
-

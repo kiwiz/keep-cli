@@ -7,23 +7,27 @@ from . import util
 
 logger = logging.getLogger(__name__)
 
+
 def _ensure_note(keep: gkeepapi.Keep, note: str) -> gkeepapi.node.TopLevelNode:
     note = keep.get(note)
     if note is None:
-        logger.error('Note not found')
+        logger.error("Note not found")
         sys.exit(2)
     return note
+
 
 def _sync(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict, save: bool):
     if not args.offline:
         keep.sync()
 
     if save:
-        util.save(keep, args.config_dir, config['username'])
+        util.save(keep, args.config_dir, config["username"])
+
 
 def tui(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
     app = application.Application(keep, config, args.config_dir, args.offline)
     app.run()
+
 
 def find(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
     _sync(args, keep, config, True)
@@ -33,15 +37,18 @@ def find(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
         colors=args.colors,
         pinned=args.pinned,
         archived=args.archived,
-        trashed=args.trashed
+        trashed=args.trashed,
     )
     for note in notes:
         print(note.id)
 
+
 def get(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
     _sync(args, keep, config, True)
-    note =_ensure_note(keep, args.note)
-    none = not (args.title or args.text or args.unchecked or args.checked or args.labels)
+    note = _ensure_note(keep, args.note)
+    none = not (
+        args.title or args.text or args.unchecked or args.checked or args.labels
+    )
 
     if none or args.title:
         print(note.title)
@@ -64,9 +71,10 @@ def get(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
         for label in note.labels.all():
             print(label)
 
+
 def set(args: argparse.Namespace, keep: gkeepapi.Keep, config: dict):
     _sync(args, keep, config, False)
-    note =_ensure_note(keep, args.note)
+    note = _ensure_note(keep, args.note)
 
     if args.title is not None:
         note.title = args.title
