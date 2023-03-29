@@ -7,6 +7,13 @@ Google Keep frontend for terminals.
 
 This is alpha quality code - take care if using in production! Feel free to open an issue if you have questions, see any bugs or have a feature request. PRs are welcome too!
 
+Installation
+------------
+
+```
+pip install google-keep-cli
+```
+
 Screen cast (WIP)
 -----------------
 

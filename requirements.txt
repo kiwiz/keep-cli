@@ -1,6 +1,0 @@
-gkeepapi
-wcwidth
-urwid
-urwid_readline
-PyYAML
-keyring

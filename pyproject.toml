@@ -1,0 +1,30 @@
+[project]
+name = "google-keep-cli"
+version = "0.0.1"
+authors = [
+  { name="Kai", email="z@kwi.li" },
+]
+description = "Google Keep frontend for terminals"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  'gkeepapi >= 0.14.2',
+  'wcwidth >= 0.2.6',
+  'urwid >= 2.0',
+  'urwid_readline >= 0.13',
+  'PyYAML >= 6.0',
+  'keyring >= 23.13.1',
+]
+
+[project.scripts]
+keep = 'keep_cli.__main__:main'
+
+
+[project.urls]
+"Homepage" = "https://github.com/kiwiz/keep-cli"
+"Bug Tracker" = "https://github.com/kiwiz/keep-cli/issues"

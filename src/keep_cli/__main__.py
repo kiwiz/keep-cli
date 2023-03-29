@@ -4,7 +4,6 @@ import os
 import re
 import argparse
 import getpass
-import json
 import logging
 import yaml
 import keyring
@@ -12,12 +11,13 @@ import gkeepapi
 from keep_cli import commands
 from keep_cli import util
 
-logger = logging.getLogger('keep-cli')
+logger = logging.getLogger("keep-cli")
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler(sys.stdout)
-formatter = logging.Formatter('[%(levelname)s] %(message)s')
+formatter = logging.Formatter("[%(levelname)s] %(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
 
 def path_type(path: str):
     return os.path.expanduser(path)
